@@ -4,6 +4,7 @@
   "description": "JSON writer",
   "main": "index.js",
   "scripts": {
+    "cibuild": "npm run lint && npm run test",
     "create-bundle": "node ./commands.js create-json-bundle",
     "lint": "eslint *.js ./src/** ./test/**",
     "test": "NODE_PATH=$NODE_PATH:. NODE_ENV=test JASMINE_CONFIG_PATH=jasmine.json nyc jasmine"

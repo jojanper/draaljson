@@ -1,5 +1,4 @@
 const utils = require('..');
-const path = require('path');
 
 
 describe('utils interface', () => {
@@ -17,7 +16,7 @@ describe('JSON reader', () => {
         const [err, data] = await utils.promiseExec(utils.readJson('jasmine.json'));
 
         expect(err).toBeNull();
-        expect(data.hasOwnProperty('spec_dir')).toBeTruthy();
+        expect(Object.prototype.hasOwnProperty.call(data, 'spec_dir')).toBeTruthy();
         done();
     });
 
@@ -25,7 +24,7 @@ describe('JSON reader', () => {
         const [err, data] = await utils.promiseExec(utils.readJson('jasmine2.json'));
 
         expect(data).toBeUndefined();
-        expect(err.message).toEqual(`ENOENT: no such file or directory, open 'jasmine2.json'`);
+        expect(err.message.startsWith('ENOENT: no such file or directory')).toBeTruthy();
         done();
     });
 });
