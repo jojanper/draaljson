@@ -1,17 +1,5 @@
-class JsonBundler {
-    static create(env) {
-        return new JsonBundler(env);
-    }
+const { JsonBundler } = require('./src');
 
-    constructor(env) {
-        this.env = env;
-    }
+const json = exports;
 
-    init() {
-        console.log(this.env);
-    }
-}
-
-module.exports = {
-    JsonBundler
-};
+json.JsonBundler = JsonBundler;
