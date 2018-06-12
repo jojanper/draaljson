@@ -1,5 +1,8 @@
 const program = require('commander');
 
+const { JsonBundler } = require('.');
+
+
 program
     .command('create-json-bundle')
     .description('Create JSON bundle')
@@ -9,7 +12,7 @@ program
         'dev'
     )
     .action((options) => {
-        console.log(options);
+        JsonBundler.create(options.env).init();
     });
 
 
