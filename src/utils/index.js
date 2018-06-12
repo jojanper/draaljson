@@ -32,7 +32,7 @@ const readJson = async (filepath) => {
         throw err;
     }
 
-    return data ? JSON.parse(data) : {};
+    return JSON.parse(data);
 };
 
 
