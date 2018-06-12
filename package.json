@@ -1,0 +1,26 @@
+{
+  "name": "draaljson",
+  "version": "1.0.0",
+  "description": "JSON writer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jojanper/draaljson.git"
+  },
+  "keywords": [
+    "json",
+    "jsonschema"
+  ],
+  "author": "Juha Ojanperä",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jojanper/draaljson/issues"
+  },
+  "homepage": "https://github.com/jojanper/draaljson",
+  "devDependencies": {
+    "commander": "^2.15.1"
+  }
+}
