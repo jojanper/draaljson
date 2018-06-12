@@ -4,6 +4,8 @@
   "description": "JSON writer",
   "main": "index.js",
   "scripts": {
+    "create-bundle": "node ./commands.js create-json-bundle",
+    "lint": "eslint *.js ./src/**",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,6 +23,47 @@
   },
   "homepage": "https://github.com/jojanper/draaljson",
   "devDependencies": {
-    "commander": "^2.15.1"
+    "commander": "^2.15.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.11.0"
+  },
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "rules": {
+      "comma-dangle": 0,
+      "consistent-return": 0,
+      "no-param-reassign": 0,
+      "no-underscore-dangle": 0,
+      "no-shadow": 0,
+      "no-console": 0,
+      "no-plusplus": 0,
+      "object-curly-spacing": 0,
+      "indent": [
+        "error",
+        4
+      ],
+      "import/no-extraneous-dependencies": [
+        0
+      ],
+      "import/no-unresolved": [
+        0
+      ]
+    },
+    "env": {
+      "node": true,
+      "mocha": true
+    },
+    "globals": {
+      "chai": true,
+      "expect": true,
+      "testapp": true,
+      "testrunner": true,
+      "appTestHelper": true,
+      "socketClient": true
+    }
+  },
+  "engines": {
+    "node": ">= 8.9.4"
   }
 }
