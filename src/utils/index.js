@@ -27,7 +27,11 @@ const promiseExec = promise => promise.then(data => [null, data]).catch(err => [
  */
 const readJson = async (filepath) => {
     const readFn = util.promisify(fs.readFile);
-    const [, data] = await promiseExec(readFn(filepath));
+    const [err, data] = await promiseExec(readFn(filepath));
+    if (err) {
+        throw err;
+    }
+
     return data ? JSON.parse(data) : {};
 };
 

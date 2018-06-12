@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "create-bundle": "node ./commands.js create-json-bundle",
-    "lint": "eslint *.js ./src/**",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint *.js ./src/** ./test/**",
+    "test": "NODE_PATH=$NODE_PATH:. NODE_ENV=test JASMINE_CONFIG_PATH=jasmine.json nyc jasmine"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,10 @@
     "commander": "^2.15.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.11.0"
+    "eslint-plugin-import": "^2.11.0",
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^13.0.0"
   },
   "eslintConfig": {
     "extends": "airbnb-base",
@@ -52,16 +55,23 @@
     },
     "env": {
       "node": true,
-      "mocha": true
+      "jasmine": true
     },
     "globals": {
-      "chai": true,
-      "expect": true,
-      "testapp": true,
-      "testrunner": true,
-      "appTestHelper": true,
-      "socketClient": true
+      "describe": true,
+      "expect": true
     }
+  },
+  "nyc": {
+    "include": [
+      "src"
+    ],
+    "exclude": "**/*.spec.js",
+    "reporter": [
+      "text",
+      "text-summary",
+      "lcovonly"
+    ]
   },
   "engines": {
     "node": ">= 8.9.4"
