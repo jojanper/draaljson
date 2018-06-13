@@ -17,7 +17,7 @@ class JsonBundler {
         const [err, manifest] = await promiseExec(readJson(this.manifestName));
         if (err) {
             log.logError(err);
-            return;
+            return [];
         }
 
         // Make sure targets are available
@@ -30,7 +30,7 @@ class JsonBundler {
         });
 
         if (abort) {
-            return;
+            return [];
         }
 
         /*
