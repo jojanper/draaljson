@@ -7,12 +7,21 @@ program
     .command('create-json-bundle')
     .description('Create JSON bundle')
     .option(
+        '-m, --manifest <manifest>',
+        'Name of JSON manifest',
+        'draaljson.json'
+    )
+    .option(
         '-f, --env <environment>',
         'Comma separated list of target environments',
         'dev'
     )
     .action((options) => {
-        JsonBundler.create(options.env).init();
+        JsonBundler.create(options.env.split(','), options.manifest).init()
+            .then((response) => {
+                console.log('\nJSON bundle created for following environments:');
+                response.forEach(item => console.log(item));
+            });
     });
 
 

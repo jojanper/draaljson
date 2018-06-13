@@ -1,0 +1,7 @@
+{
+    "version": "release",
+    "output": "build/release.json",
+    "targets": [
+        "test/"
+    ]
+}

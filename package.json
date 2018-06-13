@@ -7,6 +7,7 @@
     "cibuild": "npm run lint && npm run test",
     "create-bundle": "node ./commands.js create-json-bundle",
     "lint": "eslint *.js ./src/** ./test/**",
+    "postinstall": "mkdir -p build",
     "test": "NODE_PATH=$NODE_PATH:. NODE_ENV=test JASMINE_CONFIG_PATH=jasmine.json nyc jasmine"
   },
   "repository": {
@@ -23,6 +24,10 @@
     "url": "https://github.com/jojanper/draaljson/issues"
   },
   "homepage": "https://github.com/jojanper/draaljson",
+  "dependencies": {
+    "jsonschema": "^1.2.4",
+    "log-symbols": "^2.2.0"
+  },
   "devDependencies": {
     "commander": "^2.15.1",
     "eslint": "^4.19.1",
@@ -52,6 +57,12 @@
       ],
       "import/no-unresolved": [
         0
+      ],
+      "max-len": [
+        "error",
+        {
+          "code": 135
+        }
       ]
     },
     "env": {
