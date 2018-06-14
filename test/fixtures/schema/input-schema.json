@@ -1,0 +1,23 @@
+{
+    "id": "/MasterLevel",
+    "type": "object",
+    "properties": {
+      "version": {"type": "string"},
+      "output": {"type": "string"},
+      "target": {
+        "type": "object",
+        "properties": {
+          "inputSchema": {"type": "string"},
+          "outputSchema": {"type": "string"},
+          "targets": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": ["inputSchema", "outputSchema", "targets"]
+      }
+    },
+    "required": ["version", "output", "target"]
+}

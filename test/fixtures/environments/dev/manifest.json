@@ -1,7 +1,11 @@
 {
     "version": "develop",
     "output": "build/develop.json",
-    "targets": [
-        "test/"
-    ]
+    "target": {
+        "inputSchema": "test/fixtures/schema/database.json",
+        "outputSchema": "",
+        "targets": [
+            "test/fixtures/database/foo/manifest.json"
+        ]
+    }
 }

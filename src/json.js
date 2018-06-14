@@ -39,6 +39,8 @@ class JsonWriter {
 
         // Create targets
 
+        // Read all schemas and add to validator?
+
         // Read the schema for the output json
         response = await promiseExec(readJson(this.manifest.outputSchema));
         if (response[0]) {
