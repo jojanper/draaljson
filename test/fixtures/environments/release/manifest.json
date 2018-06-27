@@ -2,8 +2,7 @@
     "version": "release",
     "output": "build/release.json",
     "target": {
-        "inputSchema": "",
-        "outputSchema": "",
+        "inputSchema": "test/fixtures/schema/database.json",
         "targets": [
             "test/fixtures/database/foo/manifest.json",
             "test/fixtures/database/bar/manifest.json"

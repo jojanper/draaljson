@@ -7,8 +7,10 @@
       "target": {
         "type": "object",
         "properties": {
-          "inputSchema": {"type": "string"},
-          "outputSchema": {"type": "string"},
+          "inputSchema": {
+            "type": "string",
+            "minLength": 1
+          },
           "targets": {
             "type": "array",
             "items": {"type": "string"},
@@ -16,7 +18,7 @@
             "uniqueItems": true
           }
         },
-        "required": ["inputSchema", "outputSchema", "targets"]
+        "required": ["inputSchema", "targets"]
       }
     },
     "required": ["version", "output", "target"]

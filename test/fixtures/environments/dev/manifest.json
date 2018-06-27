@@ -3,7 +3,6 @@
     "output": "build/develop.json",
     "target": {
         "inputSchema": "test/fixtures/schema/database.json",
-        "outputSchema": "",
         "targets": [
             "test/fixtures/database/foo/manifest.json"
         ]

@@ -3,6 +3,7 @@ const { Validator } = require('jsonschema');
 const {
     readJson, writeJson, promiseExec, log
 } = require('./utils');
+const TargetFamilyWriter = require('./family');
 
 
 class JsonWriter {
@@ -38,8 +39,9 @@ class JsonWriter {
         bundle.version = data.version;
 
         // Create targets
-
-        // Read all schemas and add to validator?
+        data.target.targets.forEach((target) => {
+            TargetFamilyWriter.create(target, data.target.inputSchema, bundle);
+        });
 
         // Read the schema for the output json
         response = await promiseExec(readJson(this.manifest.outputSchema));
