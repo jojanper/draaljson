@@ -13,6 +13,18 @@ describe('utils interface', () => {
     });
 });
 
+describe('utils.misc interface', () => {
+    it('supports isObject', () => {
+        expect(utils.misc.isObject({foo: 'bar'})).toBeTruthy();
+        expect(utils.misc.isObject('foo')).toBeFalsy();
+    });
+
+    it('supports isString', () => {
+        expect(utils.misc.isString({foo: 'bar'})).toBeFalsy();
+        expect(utils.misc.isString('foo')).toBeTruthy();
+    });
+});
+
 describe('File handling', () => {
     it('JSON file is read', async (done) => {
         const [err, data] = await utils.promiseExec(utils.readJson('jasmine.json'));

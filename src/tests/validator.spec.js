@@ -1,5 +1,5 @@
 const { JsonValidator } = require('../validator');
-const { PRODUCT, PRODUCTS } = require('./testSchemaFixture');
+const { PRODUCT, PRODUCTS, PRODUCTS_MANIFEST_DATA } = require('./testSchemaFixture');
 
 
 describe('JsonValidator', () => {
@@ -46,16 +46,7 @@ describe('JsonValidator', () => {
     });
 
     it('validation succeeds', () => {
-        const data = {
-            products: [
-                {
-                    name: 'device-a',
-                    components: 7,
-                    bom: 3
-                }
-            ]
-        };
-
+        const { data$: data } = PRODUCTS_MANIFEST_DATA;
         const result = JsonValidator.create([PRODUCT]).validate(data, PRODUCTS);
         expect(result).toBeNull();
     });

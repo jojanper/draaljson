@@ -16,10 +16,38 @@ class JsonItemWriter {
             throw new Error(`JSON schema validation failed for ${this.schema.id}`);
         }
 
-        return this.data;
+        const data = {};
+        this.schema.required.forEach((key) => {
+            data[key] = this.data[key];
+        });
+
+        return data;
+    }
+}
+
+
+class SchemaDataHandler {
+    constructor(data) {
+        this.data = data;
+    }
+
+    write() {
+        return new JsonItemWriter(this.data.data$, this.data.schema$).write();
+    }
+}
+
+class SchemaParser {
+    static async create(manifest) {
+        return new SchemaParser(manifest);
+    }
+
+    constructor(manifest) {
+        this.manifest = manifest;
     }
 }
 
 module.exports = {
-    JsonItemWriter
+    JsonItemWriter,
+    SchemaDataHandler,
+    SchemaParser
 };
