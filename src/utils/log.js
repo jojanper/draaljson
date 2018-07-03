@@ -38,6 +38,14 @@ const logError = (msg) => {
     console.log(`${colorText.FgRed}${logSymbols.error}${colorText.FgRed} ${msg} ${colorText.Reset}`);
 };
 
+const logWarning = (msg) => {
+    if (isObject(msg)) {
+        console.log(msg);
+    }
+    console.log(`${colorText.FgYellow}${logSymbols.error}${colorText.FgYellow} ${msg} ${colorText.Reset}`);
+};
+
 module.exports = {
-    logError
+    logError,
+    logWarning
 };

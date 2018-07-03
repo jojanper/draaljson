@@ -1,0 +1,13 @@
+{
+    id: "/products",
+    "type": "object",
+    "properties": {
+        "products": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "required": ["products"]
+}

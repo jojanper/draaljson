@@ -8,10 +8,19 @@ describe('log interface', () => {
 });
 
 describe('log', () => {
-    it('logError', () => {
+    beforeEach(() => {
         spyOn(console, 'log');
+    });
+
+    it('logError', () => {
         log.logError('foo');
         log.logError({foo: 'bar'});
+        expect(console.log).toHaveBeenCalledTimes(3);
+    });
+
+    it('logWArning', () => {
+        log.logWarning('foo');
+        log.logWarning({foo: 'bar'});
         expect(console.log).toHaveBeenCalledTimes(3);
     });
 });

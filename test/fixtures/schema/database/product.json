@@ -1,0 +1,10 @@
+{
+    "id": "/product",
+    "type": "object",
+    "properties": {
+      "name": {"type": "string"},
+      "components": {"type": "integer"},
+      "bom": {"type": "integer"}
+    },
+    "required": ["name", "components", "bom"]
+}

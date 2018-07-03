@@ -26,7 +26,9 @@
   "homepage": "https://github.com/jojanper/draaljson",
   "dependencies": {
     "jsonschema": "^1.2.4",
-    "log-symbols": "^2.2.0"
+    "log-symbols": "^2.2.0",
+    "shelljs": "^0.8.1",
+    "rxjs": "^6.2.1"
   },
   "devDependencies": {
     "commander": "^2.15.1",
