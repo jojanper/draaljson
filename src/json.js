@@ -3,6 +3,7 @@ const { Validator } = require('jsonschema');
 const {
     readJson, writeJson, promiseExec, log
 } = require('./utils');
+const SchemaLoader = require('./loader');
 const { SchemaParser } = require('./writer');
 
 
@@ -18,6 +19,14 @@ class JsonWriter {
     }
 
     async write() {
+        // Read the schema DB
+        const [err, schemaDB] = await promiseExec(SchemaLoader(this.manifest.schemaDb));
+        if (err) {
+            throw new Error(`Unable to read schema DB file ${this.manifest.schemaDb}:\n${err}`);
+        } else if (!Object.keys(schemaDB).length) {
+            throw new Error(`Empty schema DB: ${this.manifest.schemaDb}`);
+        }
+
         // Read the high level manifest file
         let response = await promiseExec(readJson(this.manifest.path));
         if (response[0]) {
@@ -36,13 +45,10 @@ class JsonWriter {
         this._validateJson(data, response[1]);
 
         // Create target JSON
-        const bundle = {};
-        /*
-        const [err, bundle] = await promiseExec(SchemaParser.create(data.target).write());
-        if (err) {
-            throw err;
+        const [err2, bundle] = await promiseExec(SchemaParser.create(data.target, schemaDB).write());
+        if (err2) {
+            throw err2;
         }
-        */
 
         // Bundle ready, write to file
         await promiseExec(writeJson(data.output, bundle));

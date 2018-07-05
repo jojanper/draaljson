@@ -2,11 +2,13 @@
     "environments": {
         "dev": {
             "path": "test/fixtures/environments/dev/manifest.json",
-            "inputSchema": "test/fixtures/specs/schema/input-schema.json"
+            "inputSchema": "test/fixtures/specs/schema/input-schema.json",
+            "schemaDb": "test/fixtures/specs/schema/database"
         },
         "release": {
             "path": "test/fixtures/environments/release/manifest.json",
-            "inputSchema": "test/fixtures/specs/schema/input-schema.json"
+            "inputSchema": "test/fixtures/specs/schema/input-schema.json",
+            "schemaDb": "test/fixtures/specs/schema/database"
         }
     }
 }

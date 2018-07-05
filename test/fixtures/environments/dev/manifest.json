@@ -1,4 +1,4 @@
 {
     "output": "build/develop.json",
-    "target": "test/fixtures/specs/manifest/verification.json"
+    "target": "test/fixtures/specs/manifest/verification-1.json"
 }

@@ -5,6 +5,7 @@ const { log } = require('../utils');
 describe('JsonWriter', () => {
     beforeEach(() => {
         spyOn(log, 'logError');
+        spyOn(log, 'logWarning');
     });
 
     function runTest(manifest, env, done) {
@@ -15,11 +16,27 @@ describe('JsonWriter', () => {
         });
     }
 
+    it('write fails due to invalid schema DB path', (done) => {
+        const manifest = {
+            environments: {
+                dev: {
+                    schemaDb: 'test/fixtures/specs/schema/database2'
+                }
+            }
+        };
+
+        runTest(manifest, 'dev', () => {
+            expect(log.logWarning).toHaveBeenCalledTimes(1);
+            done();
+        });
+    });
+
     it('write fails due to invalid manifest path', (done) => {
         const manifest = {
             environments: {
                 dev: {
-                    path: 'foo'
+                    path: 'foo',
+                    schemaDb: 'test/fixtures/specs/schema/database'
                 }
             }
         };
@@ -32,7 +49,8 @@ describe('JsonWriter', () => {
             environments: {
                 dev: {
                     path: 'test/fixtures/environments/dev/manifest.json',
-                    inputSchema: 'test/fixtures/schema/input-schema-invalid.json'
+                    inputSchema: 'test/fixtures/schema/input-schema-invalid.json',
+                    schemaDb: 'test/fixtures/specs/schema/database'
                 }
             }
         };
