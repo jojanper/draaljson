@@ -143,8 +143,8 @@ class SchemaParser {
         return new Promise(async (resolve, reject) => {
             const property = this.manifest.schema.properties[field];
 
-            if (!data[field]) {
-                return reject(new Error(`No ${field} field present in ${this.ref}:datafile$`));
+            if (!Object.prototype.hasOwnProperty.call(data, field)) {
+                return reject(new Error(`No '${field}' field present in ${this.ref}:datafile$`));
             }
 
             let schema;

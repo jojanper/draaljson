@@ -58,7 +58,7 @@ describe('SchemaParser', () => {
         };
 
         SchemaParser.create(manifest, schemaDb).write().catch((result) => {
-            expect(result.message.startsWith('No about field present in')).toBeTruthy();
+            expect(result.message.startsWith('No \'about\' field present in')).toBeTruthy();
             done();
         });
     });
@@ -72,7 +72,7 @@ describe('SchemaParser', () => {
         };
 
         SchemaParser.create(manifest, schemaDb).write().catch((result) => {
-            expect(result.message.startsWith('No products field present in')).toBeTruthy();
+            expect(result.message.startsWith('No \'products\' field present in')).toBeTruthy();
             done();
         });
     });
@@ -89,6 +89,27 @@ describe('SchemaParser', () => {
         const manifest = 'test/fixtures/specs/manifest/verification-3.json';
         SchemaParser.create(manifest, schemaDb).write().catch((err) => {
             expect(err.message.startsWith('Unable to read file about-does-not-exist.json')).toBeTruthy();
+            done();
+        });
+    });
+
+    it('unsupported field type is used for datafile$', (done) => {
+        const manifest = {
+            schema: {
+                id: '/foo',
+                type: 'object',
+                properties: {
+                    unsupported: {type: 'string'}
+                },
+                required: ['unsupported']
+            },
+            datafile$: {
+                unsupported: ''
+            }
+        };
+
+        SchemaParser.create(manifest, schemaDb).parseDataFileField('unsupported', {}).catch((err) => {
+            expect(err.message.startsWith('Unsupported parser type (string) present in :datafile$:unsupported')).toBeTruthy();
             done();
         });
     });
