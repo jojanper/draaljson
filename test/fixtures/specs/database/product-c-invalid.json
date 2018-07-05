@@ -1,0 +1,7 @@
+{
+    "name": "device-bar",
+    "components": 9,
+    "bom": 5,
+    "factories": "does-not-exist.json",
+    "info": "test/fixtures/specs/database/product-c-info.json"
+}

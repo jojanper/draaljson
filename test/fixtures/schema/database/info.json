@@ -1,0 +1,8 @@
+{
+    "id": "/info",
+    "type": "object",
+    "properties": {
+      "price": {"type": "integer"}
+    },
+    "required": ["price"]
+}

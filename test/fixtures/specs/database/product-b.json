@@ -1,5 +1,7 @@
 {
     "name": "device-bar",
     "components": 9,
-    "bom": 5
+    "bom": 5,
+    "factories": "test/fixtures/specs/database/product-b-factories.json",
+    "info": "test/fixtures/specs/database/product-b-info.json"
 }

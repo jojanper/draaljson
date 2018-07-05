@@ -1,0 +1,10 @@
+{
+    "schema$": "test/fixtures/schema/database/deliverable.json",
+    "datafile$": {
+        "products": [
+            "test/fixtures/specs/database/product-a.json",
+            "test/fixtures/specs/database/product-b.json"
+        ],
+        "about": "test/fixtures/specs/database/about.json"
+    }
+}

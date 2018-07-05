@@ -1,7 +1,10 @@
 {
-    "id": "/products",
+    "id": "/deliverable",
     "type": "object",
     "properties": {
+        "about": {
+            "ref$": "/about"
+        },
         "products": {
             "type": "array",
             "items": {"$ref": "/product"},
@@ -9,5 +12,5 @@
             "uniqueItems": true
         }
     },
-    "required": ["products"]
+    "required": ["products", "about"]
 }

@@ -4,7 +4,16 @@
     "properties": {
       "name": {"type": "string"},
       "components": {"type": "integer"},
-      "bom": {"type": "integer"}
+      "bom": {"type": "integer"},
+      "factories": {
+        "type": "array",
+        "items": {"type": "string"},
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "info": {
+        "ref$": "/info"
+      }
     },
-    "required": ["name", "components", "bom"]
+    "required": ["name", "components", "bom", "factories", "info"]
 }

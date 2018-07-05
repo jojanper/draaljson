@@ -18,7 +18,7 @@ describe('log', () => {
         expect(console.log).toHaveBeenCalledTimes(3);
     });
 
-    it('logWArning', () => {
+    it('logWarning', () => {
         log.logWarning('foo');
         log.logWarning({foo: 'bar'});
         expect(console.log).toHaveBeenCalledTimes(3);

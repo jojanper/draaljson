@@ -9,7 +9,8 @@ class JsonValidator {
     constructor(schemas) {
         this.validator = new Validator();
         if (schemas) {
-            schemas.forEach(schema => this.validator.addSchema(schema, schema.id));
+            Object.keys(schemas).forEach(key =>
+                this.validator.addSchema(schemas[key], schemas[key].id));
         }
     }
 

@@ -32,7 +32,7 @@ const PRODUCTS_MANIFEST_DATA = {
 };
 
 const PRODUCTS_MANIFEST_FILE = {
-    schema$: 'test/fixtures/schema/database/products.json',
+    schema$: 'test/fixtures/schema/database/deliverable.json',
     datafile$: {
         products: [
             'test/fixtures/specs/database/product-a.json',

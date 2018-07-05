@@ -3,6 +3,12 @@ const { PRODUCT, PRODUCTS, PRODUCTS_MANIFEST_DATA } = require('./testSchemaFixtu
 
 
 describe('JsonValidator', () => {
+    const SCHEMAS = {};
+
+    beforeAll(() => {
+        SCHEMAS[PRODUCT.id] = PRODUCT;
+    });
+
     it('validation errors are available for simple data validation', () => {
         const data = {
             name: 'device-a',
@@ -24,7 +30,7 @@ describe('JsonValidator', () => {
             }
         ];
 
-        const result = JsonValidator.create([PRODUCT]).validate(data, PRODUCTS);
+        const result = JsonValidator.create(SCHEMAS).validate(data, PRODUCTS);
         expect(result.length).toEqual(1);
         expect(result[0].property).toEqual('instance');
     });
@@ -40,14 +46,14 @@ describe('JsonValidator', () => {
             ]
         };
 
-        const result = JsonValidator.create([PRODUCT]).validate(data, PRODUCTS);
+        const result = JsonValidator.create(SCHEMAS).validate(data, PRODUCTS);
         expect(result.length).toEqual(1);
         expect(result[0].property).toEqual('instance.products[0].components');
     });
 
     it('validation succeeds', () => {
         const { data$: data } = PRODUCTS_MANIFEST_DATA;
-        const result = JsonValidator.create([PRODUCT]).validate(data, PRODUCTS);
+        const result = JsonValidator.create(SCHEMAS).validate(data, PRODUCTS);
         expect(result).toBeNull();
     });
 });
