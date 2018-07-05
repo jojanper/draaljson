@@ -45,6 +45,11 @@ class SchemaParser {
     }
 
     async write() {
+        // Schema database must be available
+        if (!this.schemaDb) {
+            throw new Error(`No schema DB specified`);
+        }
+
         // Manifest is file reference -> read the file and replace manifest with the file content
         if (misc.isString(this.manifest)) {
             // Save the file path for future reference

@@ -6,8 +6,15 @@ describe('SchemaParser', () => {
     let schemaDb = null;
 
     beforeAll((done) => {
-        SchemaLoader('test/fixtures/schema/database').then((data) => {
+        SchemaLoader('test/fixtures/specs/schema/database').then((data) => {
             schemaDb = data;
+            done();
+        });
+    });
+
+    it('no schema DB specified', (done) => {
+        SchemaParser.create().write().catch((err) => {
+            expect(err.message.startsWith('No schema DB')).toBeTruthy();
             done();
         });
     });
@@ -33,15 +40,15 @@ describe('SchemaParser', () => {
         const manifest = {
             schema$: 'invalid.json'
         };
-        SchemaParser.create(manifest).write().catch((result) => {
-            expect(result.message.length).toBeGreaterThan(0);
+        SchemaParser.create(manifest, schemaDb).write().catch((err) => {
+            expect(err.message.startsWith('Unable to read schema file :invalid.json')).toBeTruthy();
             done();
         });
     });
 
     it('manifest datafile$ is incomplete, part 1', (done) => {
         const manifest = {
-            schema$: 'test/fixtures/schema/database/deliverable.json',
+            schema$: 'test/fixtures/specs/schema/database/deliverable.json',
             datafile$: {
                 products: [
                     'test/fixtures/specs/database/product-a.json',
@@ -58,7 +65,7 @@ describe('SchemaParser', () => {
 
     it('manifest datafile$ is incomplete, part 2', (done) => {
         const manifest = {
-            schema$: 'test/fixtures/schema/database/deliverable.json',
+            schema$: 'test/fixtures/specs/schema/database/deliverable.json',
             datafile$: {
                 about: 'test/fixtures/specs/database/about.json'
             }

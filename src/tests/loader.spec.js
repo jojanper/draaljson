@@ -8,7 +8,7 @@ describe('SchemaLoader', () => {
     });
 
     it('schema loading succeeds', async () => {
-        const schema = await SchemaLoader('test/fixtures/schema/database');
+        const schema = await SchemaLoader('test/fixtures/specs/schema/database');
         expect(Object.keys(schema).length > 0).toBeTruthy();
     });
 

@@ -1,8 +1,0 @@
-{
-    "id": "/BundleOutput",
-    "type": "object",
-    "properties": {
-      "version": {"type": "string"}
-    },
-    "required": ["version"]
-}

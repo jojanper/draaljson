@@ -31,22 +31,9 @@ const PRODUCTS_MANIFEST_DATA = {
     data$: PRODUCTS_DATA
 };
 
-const PRODUCTS_MANIFEST_FILE = {
-    schema$: 'test/fixtures/schema/database/deliverable.json',
-    datafile$: {
-        products: [
-            'test/fixtures/specs/database/product-a.json',
-            'test/fixtures/specs/database/product-b.json'
-        ]
-    }
-};
-
-// Also combination of data$ and datafile$ to be supported
-
 module.exports = {
     PRODUCT,
     PRODUCTS,
 
-    PRODUCTS_MANIFEST_DATA,
-    PRODUCTS_MANIFEST_FILE
+    PRODUCTS_MANIFEST_DATA
 };

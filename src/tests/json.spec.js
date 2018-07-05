@@ -32,22 +32,7 @@ describe('JsonWriter', () => {
             environments: {
                 dev: {
                     path: 'test/fixtures/environments/dev/manifest.json',
-                    inputSchema: 'test/fixtures/schema/input-schema-invalid.json',
-                    outputSchema: 'test/fixtures/schema/output-schema.json'
-                }
-            }
-        };
-
-        runTest(manifest, 'dev', done);
-    });
-
-    it('write fails due to invalid output schema path', (done) => {
-        const manifest = {
-            environments: {
-                dev: {
-                    path: 'test/fixtures/environments/dev/manifest.json',
-                    inputSchema: 'test/fixtures/schema/input-schema.json',
-                    outputSchema: 'test/fixtures/schema/output-schema-invalid.json'
+                    inputSchema: 'test/fixtures/schema/input-schema-invalid.json'
                 }
             }
         };

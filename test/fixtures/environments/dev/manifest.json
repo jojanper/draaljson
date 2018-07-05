@@ -1,10 +1,4 @@
 {
-    "version": "develop",
     "output": "build/develop.json",
-    "target": {
-        "inputSchema": "test/fixtures/schema/database.json",
-        "targets": [
-            "test/fixtures/database/foo/manifest.json"
-        ]
-    }
+    "target": "test/fixtures/specs/manifest/verification.json"
 }
