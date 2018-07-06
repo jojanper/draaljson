@@ -44,12 +44,7 @@ class SchemaParser {
         this.schema = schema;
     }
 
-    async write() {
-        // Schema database must be available
-        if (!this.schemaDb) {
-            throw new Error('No schema DB specified');
-        }
-
+    async readManifest() {
         // Manifest is file reference -> read the file and replace manifest with the file content
         if (misc.isString(this.manifest)) {
             // Save the file path for future reference
@@ -62,7 +57,9 @@ class SchemaParser {
 
             [, this.manifest] = response;
         }
+    }
 
+    async readDataModel() {
         // Read the data model (i.e., schema)
         if (misc.isString(this.manifest.schema$)) {
             const response = await promiseExec(readJson(this.manifest.schema$));
@@ -72,18 +69,24 @@ class SchemaParser {
 
             [, this.manifest.schema] = response;
         }
+    }
 
-        let jsonOutput = {};
+    async processData$() {
+        const json = {};
 
         // Data is located in the data$ property within the manifest
         if (this.manifest.data$) {
             this.manifest.schema.required.forEach((key) => {
                 if (Object.prototype.hasOwnProperty.call(this.manifest.data$, key)) {
-                    jsonOutput[key] = this.manifest.data$[key];
+                    json[key] = this.manifest.data$[key];
                 }
             });
         }
 
+        return json;
+    }
+
+    async processDatafile$(json) {
         // Data is located within the file system, not within the manifest itself
         if (this.manifest.datafile$) {
             const fields = this.manifest.schema.required;
@@ -92,8 +95,8 @@ class SchemaParser {
             const promises = [];
             fields.forEach((field) => {
                 // Field value may have been assigned already by data$ property
-                if (!Object.prototype.hasOwnProperty.call(jsonOutput, field)) {
-                    promises.push(this.parseDataFileField(field, jsonOutput));
+                if (!Object.prototype.hasOwnProperty.call(json, field)) {
+                    promises.push(this.parseDataFileField(field, json));
                 }
             });
 
@@ -104,9 +107,32 @@ class SchemaParser {
             }
         }
 
+        return json;
+    }
+
+    async write() {
+        // Schema database must be available
+        if (!this.schemaDb) {
+            throw new Error('No schema DB specified');
+        }
+
+        // Read the actual manifest
+        await this.readManifest();
+
+        // Read the optional schema
+        await this.readDataModel();
+
+        // Process data$ directive, if any
+        let jsonOutput = await this.processData$();
+
+        // Process $datafile directive, if any
+        jsonOutput = await this.processDatafile$(jsonOutput);
+
         const schema = this.schema || this.manifest.schema;
 
+        // Does the manifest contain schema directives or it plain data object
         if (!this.manifest.schema$ && !this.manifest.datafile$) {
+            // Manifest contains directives, process those before creating the JSON output
             const keys = [];
             const promises = [];
 
@@ -139,6 +165,7 @@ class SchemaParser {
                 ...JsonItemWriter.create(this.manifest, schema).write(this.schemaDb)
             };
         } else {
+            // Manifest is plain data object
             // Created JSON output should be validated based specified schema
             jsonOutput = {
                 ...JsonItemWriter.create(jsonOutput, this.manifest.schema).write(this.schemaDb)
@@ -158,12 +185,11 @@ class SchemaParser {
                 return reject(new Error(`No '${field}' field present in ${this.ref}:datafile$`));
             }
 
-            let schema;
             const fieldType = property.type || this.schemaDb[property.ref$].type || 'unknown';
 
             switch (fieldType) {
             case 'array': {
-                schema = this.schemaDb[property.items.$ref];
+                const schema = this.schemaDb[property.items.$ref];
 
                 jsonOutput[field] = [];
 
@@ -183,7 +209,7 @@ class SchemaParser {
             }
 
             case 'object': {
-                schema = this.schemaDb[property.ref$];
+                const schema = this.schemaDb[property.ref$];
                 const response = await promiseExec(SchemaParser.create(data[field], this.schemaDb, schema).write());
                 if (response[0]) {
                     return reject(response[0]);
