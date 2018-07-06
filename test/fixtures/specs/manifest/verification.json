@@ -6,5 +6,8 @@
             "test/fixtures/specs/database/product-b.json"
         ],
         "about": "test/fixtures/specs/database/about.json"
+    },
+    "data$": {
+        "version": "1.0.1"
     }
 }

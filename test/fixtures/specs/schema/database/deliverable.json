@@ -10,7 +10,8 @@
             "items": {"$ref": "/product"},
             "minItems": 1,
             "uniqueItems": true
-        }
+        },
+        "version": {"type": "string"}
     },
-    "required": ["products", "about"]
+    "required": ["products", "about", "version"]
 }

@@ -75,6 +75,15 @@ class SchemaParser {
 
         let jsonOutput = {};
 
+        // Data is located in the data$ property within the manifest
+        if (this.manifest.data$) {
+            this.manifest.schema.required.forEach((key) => {
+                if (Object.prototype.hasOwnProperty.call(this.manifest.data$, key)) {
+                    jsonOutput[key] = this.manifest.data$[key];
+                }
+            });
+        }
+
         // Data is located within the file system, not within the manifest itself
         if (this.manifest.datafile$) {
             const fields = this.manifest.schema.required;
@@ -82,7 +91,10 @@ class SchemaParser {
             // Get the promises that fetch the actual data for each field
             const promises = [];
             fields.forEach((field) => {
-                promises.push(this.parseDataFileField(field, jsonOutput));
+                // Field value may have been assigned already by data$ property
+                if (!Object.prototype.hasOwnProperty.call(jsonOutput, field)) {
+                    promises.push(this.parseDataFileField(field, jsonOutput));
+                }
             });
 
             // Execute all promises
@@ -117,9 +129,8 @@ class SchemaParser {
             }
 
             // Assign data values for needed fields
-            let i = 0;
-            keys.forEach((key) => {
-                this.manifest[key] = manifestData[i++];
+            keys.forEach((key, index) => {
+                this.manifest[key] = manifestData[index];
             });
 
             // Manifest is actually the JSON data, validate and create the output based on specified scheme

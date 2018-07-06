@@ -2,6 +2,40 @@ const SchemaLoader = require('../loader');
 const { SchemaParser } = require('../writer');
 
 
+const REF_OUTPUT = {
+    products: [
+        {
+            name: 'device-foo',
+            components: 7,
+            bom: 3,
+            factories: [
+                'USA',
+                'China'
+            ],
+            info: {
+                price: 700
+            }
+        },
+        {
+            name: 'device-bar',
+            components: 9,
+            bom: 5,
+            factories: [
+                'Vietnam',
+                'Taiwan'
+            ],
+            info: {
+                price: 900
+            }
+        }
+    ],
+    about: {
+        version: '1.0'
+    },
+    version: '1.0.1'
+};
+
+
 describe('SchemaParser', () => {
     let schemaDb = null;
 
@@ -31,9 +65,9 @@ describe('SchemaParser', () => {
         const manifest = 'test/fixtures/specs/manifest/verification.json';
         SchemaParser.create(manifest, schemaDb).write().then((json) => {
             console.log(JSON.stringify(json, null, 4));
-            expect(Object.keys(json).length).toBeGreaterThan(0);
+            expect(json).toEqual(REF_OUTPUT);
             done();
-        });
+        }).catch(err => console.log(err));
     });
 
     it('manifest schema$ is invalid', (done) => {

@@ -5,5 +5,8 @@
             "test/fixtures/specs/database/product-b.json"
         ],
         "about": "about-does-not-exist.json"
+    },
+    "data$": {
+        "version": "1.0.1"
     }
 }
