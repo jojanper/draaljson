@@ -110,6 +110,34 @@ class SchemaParser {
         return json;
     }
 
+    async processObjectReferenceData(schema) {
+        const keys = [];
+        const promises = [];
+
+        // Read objects and arrays from file if target is string
+        schema.required.forEach((key) => {
+            const property = schema.properties[key];
+            const fieldType = property.type || this.schemaDb[property.ref$].type || 'unknown';
+
+            if (fieldType === 'array' || fieldType === 'object') {
+                if (misc.isString(this.manifest[key])) {
+                    keys.push(key);
+                    promises.push(readJson(this.manifest[key]));
+                }
+            }
+        });
+
+        const [err, manifestData] = await promiseExec(Promise.all(promises));
+        if (err) {
+            throw err;
+        }
+
+        // Assign data values for needed fields
+        keys.forEach((key, index) => {
+            this.manifest[key] = manifestData[index];
+        });
+    }
+
     async write() {
         // Schema database must be available
         if (!this.schemaDb) {
@@ -132,32 +160,8 @@ class SchemaParser {
 
         // Does the manifest contain schema directives or it plain data object
         if (!this.manifest.schema$ && !this.manifest.datafile$) {
-            // Manifest contains directives, process those before creating the JSON output
-            const keys = [];
-            const promises = [];
-
-            // Read objects and arrays from file if target is string
-            schema.required.forEach((key) => {
-                const property = schema.properties[key];
-                const fieldType = property.type || this.schemaDb[property.ref$].type || 'unknown';
-
-                if (fieldType === 'array' || fieldType === 'object') {
-                    if (misc.isString(this.manifest[key])) {
-                        keys.push(key);
-                        promises.push(readJson(this.manifest[key]));
-                    }
-                }
-            });
-
-            const [err, manifestData] = await promiseExec(Promise.all(promises));
-            if (err) {
-                throw err;
-            }
-
-            // Assign data values for needed fields
-            keys.forEach((key, index) => {
-                this.manifest[key] = manifestData[index];
-            });
+            // Manifest may contain file references, process those before creating the JSON output
+            await this.processObjectReferenceData(schema);
 
             // Manifest is actually the JSON data, validate and create the output based on specified scheme
             jsonOutput = {
