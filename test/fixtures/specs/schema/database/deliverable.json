@@ -3,7 +3,7 @@
     "type": "object",
     "properties": {
         "about": {
-            "ref$": "/about"
+            "$ref": "/about"
         },
         "products": {
             "type": "array",

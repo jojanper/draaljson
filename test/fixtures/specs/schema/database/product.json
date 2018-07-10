@@ -12,7 +12,7 @@
         "uniqueItems": true
       },
       "info": {
-        "ref$": "/info"
+        "$ref": "/info"
       }
     },
     "required": ["name", "components", "bom", "factories", "info"]

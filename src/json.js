@@ -10,7 +10,10 @@ const { SchemaParser } = require('./writer');
 class JsonWriter {
     static create(manifest, env) {
         const instance = new JsonWriter(manifest.environments[env], env);
-        return instance.write().catch(err => log.logError(err.message));
+        return instance.write().catch((err) => {
+            log.logError(err.message);
+            console.trace(err);
+        });
     }
 
     constructor(manifest, env) {

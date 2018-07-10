@@ -117,7 +117,7 @@ class SchemaParser {
         // Read objects and arrays from file if target is string
         schema.required.forEach((key) => {
             const property = schema.properties[key];
-            const fieldType = property.type || this.schemaDb[property.ref$].type || 'unknown';
+            const fieldType = property.type || this.schemaDb[property.$ref].type || 'unknown';
 
             if (fieldType === 'array' || fieldType === 'object') {
                 if (misc.isString(this.manifest[key])) {
@@ -189,7 +189,7 @@ class SchemaParser {
                 return reject(new Error(`No '${field}' field present in ${this.ref}:datafile$`));
             }
 
-            const fieldType = property.type || this.schemaDb[property.ref$].type || 'unknown';
+            const fieldType = property.type || this.schemaDb[property.$ref].type || 'unknown';
 
             switch (fieldType) {
             case 'array': {
@@ -213,7 +213,7 @@ class SchemaParser {
             }
 
             case 'object': {
-                const schema = this.schemaDb[property.ref$];
+                const schema = this.schemaDb[property.$ref];
                 const response = await promiseExec(SchemaParser.create(data[field], this.schemaDb, schema).write());
                 if (response[0]) {
                     return reject(response[0]);
