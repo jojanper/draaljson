@@ -1,11 +1,5 @@
-- environments should list target detectly instead of passing a path to a target:
-  {
-    "output": ...,
-    "target": ...,
-    "inputSchema": ...,
-    "schemaDb": ...
-  }
-
 - make sure property type can be detected
+
+- file$ can be used to reference current file path
 
 - make separate function: const fieldType = property.type || this.schemaDb[property.$ref].type || 'unknown';

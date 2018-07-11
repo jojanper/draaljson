@@ -1,4 +1,0 @@
-{
-    "output": "build/release.json",
-    "target": "test/fixtures/specs/manifest/verification-2.json"
-}

@@ -1,9 +1,0 @@
-{
-    "id": "/MasterLevel",
-    "type": "object",
-    "properties": {
-      "output": {"type": "string"},
-      "target": {"type": "string"}
-    },
-    "required": ["output", "target"]
-}

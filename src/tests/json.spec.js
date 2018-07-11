@@ -20,6 +20,8 @@ describe('JsonWriter', () => {
         const manifest = {
             environments: {
                 dev: {
+                    output: 'foo',
+                    target: 'bar',
                     schemaDb: 'test/fixtures/specs/schema/database2'
                 }
             }
@@ -27,6 +29,8 @@ describe('JsonWriter', () => {
 
         runTest(manifest, 'dev', () => {
             expect(log.logWarning).toHaveBeenCalledTimes(1);
+            const err = log.logError.calls.all()[0].args[0];
+            expect(err.startsWith('Empty schema DB')).toBeTruthy();
             done();
         });
     });
@@ -35,66 +39,55 @@ describe('JsonWriter', () => {
         const manifest = {
             environments: {
                 dev: {
+                    output: 'foo',
+                    target: 'bar',
                     schemaDb: 'test/fixtures/specs/schema/errorneous'
                 }
             }
         };
 
-        runTest(manifest, 'dev', done);
-    });
-
-    it('write fails due to invalid manifest path', (done) => {
-        const manifest = {
-            environments: {
-                dev: {
-                    path: 'foo',
-                    schemaDb: 'test/fixtures/specs/schema/database'
-                }
-            }
-        };
-
-        runTest(manifest, 'dev', done);
-    });
-
-    it('write fails due to invalid input schema path', (done) => {
-        const manifest = {
-            environments: {
-                dev: {
-                    path: 'test/fixtures/environments/dev/manifest.json',
-                    inputSchema: 'test/fixtures/schema/input-schema-invalid.json',
-                    schemaDb: 'test/fixtures/specs/schema/database'
-                }
-            }
-        };
-
-        runTest(manifest, 'dev', done);
+        runTest(manifest, 'dev', () => {
+            const err = log.logError.calls.all()[0].args[0];
+            expect(err.startsWith('Unable to read schema DB file')).toBeTruthy();
+            done();
+        });
     });
 
     it('write fails due to input schema validation errors', (done) => {
         const manifest = {
             environments: {
                 dev: {
-                    path: 'test/fixtures/environments/error/manifest.json',
-                    inputSchema: 'test/fixtures/specs/schema/input-schema.json',
+                    output0: 'foo',
+                    target: 'bar',
                     schemaDb: 'test/fixtures/specs/schema/database'
                 }
             }
         };
 
-        runTest(manifest, 'dev', done, 3);
+        runTest(manifest, 'dev', () => {
+            const err = log.logError.calls.all()[0].args[0].message;
+            expect(err.startsWith('requires property "output"')).toBeTruthy();
+            done();
+        }, 2);
     });
 
     it('write fails due to bundle schema validation errors', (done) => {
         const manifest = {
             environments: {
                 dev: {
-                    path: 'test/fixtures/environments/error/manifest-2.json',
-                    inputSchema: 'test/fixtures/specs/schema/input-schema.json',
+                    output: 'build/release.json',
+                    target: 'test/fixtures/specs/manifest/verification-2.json',
                     schemaDb: 'test/fixtures/specs/schema/database'
                 }
             }
         };
 
-        runTest(manifest, 'dev', done);
+        runTest(manifest, 'dev', () => {
+            const err = log.logError.calls.all()[0].args[0];
+            const msg = 'ENOENT: no such file or directory, open \'does-not-exist.json\'';
+
+            expect(err).toEqual(msg);
+            done();
+        });
     });
 });
