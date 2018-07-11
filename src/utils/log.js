@@ -31,11 +31,12 @@ const colorText = {
     BgWhite: '\x1b[47m'
 };
 
-const logError = (msg) => {
+const logError = (msg, options) => {
+    const method = options && options.trace ? 'trace' : 'log';
     if (isObject(msg)) {
-        console.log(msg);
+        console[method](msg);
     }
-    console.log(`${colorText.FgRed}${logSymbols.error}${colorText.FgRed} ${msg} ${colorText.Reset}`);
+    console[method](`${colorText.FgRed}${logSymbols.error}${colorText.FgRed} ${msg} ${colorText.Reset}`);
 };
 
 const logWarning = (msg) => {

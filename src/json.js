@@ -24,8 +24,7 @@ class JsonWriter {
     static create(manifest, env) {
         const instance = new JsonWriter(manifest.environments[env], env);
         return instance.write().catch((err) => {
-            log.logError(err.message);
-            console.trace(err);
+            log.logError(err.message, {trace: true});
         });
     }
 

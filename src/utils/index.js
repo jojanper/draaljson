@@ -32,10 +32,14 @@ const readJson = async (filepath) => {
     const readFn = util.promisify(fs.readFile);
     const [err, data] = await promiseExec(readFn(filepath));
     if (err) {
-        throw err;
+        throw new Error(`${filepath}: ${err.message}`);
     }
 
-    return JSON.parse(data);
+    try {
+        return JSON.parse(data);
+    } catch (err) {
+        throw new Error(`${filepath}: ${err.message}`);
+    }
 };
 
 

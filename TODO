@@ -1,5 +1,2 @@
 - make sure property type can be detected
-
-- file$ can be used to reference current file path
-
-- make separate function: const fieldType = property.type || this.schemaDb[property.$ref].type || 'unknown';
+- filter final bundle json output from unwanted data fields

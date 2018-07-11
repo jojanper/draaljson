@@ -84,7 +84,7 @@ describe('JsonWriter', () => {
 
         runTest(manifest, 'dev', () => {
             const err = log.logError.calls.all()[0].args[0];
-            const msg = 'ENOENT: no such file or directory, open \'does-not-exist.json\'';
+            const msg = 'does-not-exist.json: ENOENT: no such file or directory, open \'does-not-exist.json\'';
 
             expect(err).toEqual(msg);
             done();

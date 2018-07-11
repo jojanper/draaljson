@@ -35,10 +35,12 @@ describe('File handling', () => {
     });
 
     it('Invalid file is read', async (done) => {
+        const expectedMsg = 'jasmine2.json: ENOENT: no such file or directory';
+
         const [err, data] = await utils.promiseExec(utils.readJson('jasmine2.json'));
 
         expect(data).toBeUndefined();
-        expect(err.message.startsWith('ENOENT: no such file or directory')).toBeTruthy();
+        expect(err.message.startsWith(expectedMsg)).toBeTruthy();
         done();
     });
 

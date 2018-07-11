@@ -1,6 +1,7 @@
-const { JsonValidator } = require('./validator');
+const path = require('path');
 const { from, forkJoin } = require('rxjs');
 
+const { JsonValidator } = require('./validator');
 const {
     log, misc, readJson, promiseExec
 } = require('./utils');
@@ -110,19 +111,28 @@ class SchemaParser {
         return json;
     }
 
-    async processObjectReferenceData(schema) {
+    async processObjectReferenceData(data, schema) {
         const keys = [];
         const promises = [];
 
         // Read objects and arrays from file if target is string
         schema.required.forEach((key) => {
             const property = schema.properties[key];
-            const fieldType = property.type || this.schemaDb[property.$ref].type || 'unknown';
 
+            if (!property) {
+                throw new Error(`Properties '${key}' not found from schema ${schema.id}`);
+            }
+
+            const fieldType = this.getFieldType(property);
             if (fieldType === 'array' || fieldType === 'object') {
-                if (misc.isString(this.manifest[key])) {
+                if (misc.isString(data[key])) {
+                    // File path is referenced with respect to parent manifest path
+                    const filePath = (this.ref && data[key].startsWith('filepath$')) ?
+                        data[key].replace('filepath$', path.dirname(this.ref)) :
+                        data[key];
+
                     keys.push(key);
-                    promises.push(readJson(this.manifest[key]));
+                    promises.push(readJson(filePath));
                 }
             }
         });
@@ -132,10 +142,24 @@ class SchemaParser {
             throw err;
         }
 
+        promises.splice(0, promises.length);
+
         // Assign data values for needed fields
         keys.forEach((key, index) => {
-            this.manifest[key] = manifestData[index];
+            data[key] = manifestData[index];
+
+            // Recursively check if object fields contain file path references
+            const property = schema.properties[key];
+            const fieldType = this.getFieldType(property);
+            if (fieldType === 'object') {
+                promises.push(this.processObjectReferenceData(data[key], this.schemaDb[property.$ref]));
+            }
         });
+
+        const response = await promiseExec(Promise.all(promises));
+        if (response[0]) {
+            throw response[0];
+        }
     }
 
     async write() {
@@ -161,7 +185,7 @@ class SchemaParser {
         // Does the manifest contain schema directives or it plain data object
         if (!this.manifest.schema$ && !this.manifest.datafile$) {
             // Manifest may contain file references, process those before creating the JSON output
-            await this.processObjectReferenceData(schema);
+            await this.processObjectReferenceData(this.manifest, schema);
 
             // Manifest is actually the JSON data, validate and create the output based on specified scheme
             jsonOutput = {
@@ -189,7 +213,7 @@ class SchemaParser {
                 return reject(new Error(`No '${field}' field present in ${this.ref}:datafile$`));
             }
 
-            const fieldType = property.type || this.schemaDb[property.$ref].type || 'unknown';
+            const fieldType = this.getFieldType(property);
 
             switch (fieldType) {
             case 'array': {
@@ -228,6 +252,10 @@ class SchemaParser {
                 return reject(new Error(`Unsupported parser type (${fieldType}) present in ${this.ref}:datafile$:${field}`));
             }
         });
+    }
+
+    getFieldType(property) {
+        return property.type || this.schemaDb[property.$ref].type || 'unknown';
     }
 }
 

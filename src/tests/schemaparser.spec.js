@@ -35,6 +35,30 @@ const REF_OUTPUT = {
     version: '1.0.1'
 };
 
+const DATABASE = {
+    '/product': {
+        id: '/product',
+        type: 'object',
+        properties: {
+            factories: {
+                type: 'array',
+                items: {type: 'string'}
+            }
+        },
+        required: ['factories']
+    },
+    '/parent': {
+        id: '/parent',
+        type: 'object',
+        properties: {
+            product: {
+                $ref: '/product'
+            }
+        },
+        required: ['product']
+    }
+};
+
 
 describe('SchemaParser', () => {
     let schemaDb = null;
@@ -114,7 +138,9 @@ describe('SchemaParser', () => {
     it('array reference file path does not exist', (done) => {
         const manifest = 'test/fixtures/specs/manifest/verification-2.json';
         SchemaParser.create(manifest, schemaDb).write().catch((err) => {
-            expect(err.message.startsWith('ENOENT: no such file or directory, open')).toBeTruthy();
+            const expectedMsg = 'does-not-exist.json: ENOENT: no such file or directory, open';
+
+            expect(err.message.startsWith(expectedMsg)).toBeTruthy();
             done();
         });
     });
@@ -138,12 +164,56 @@ describe('SchemaParser', () => {
                 required: ['unsupported']
             },
             datafile$: {
-                unsupported: ''
+                unsupported: '' // Field of type string cannot be included to datafile$
             }
         };
 
         SchemaParser.create(manifest, schemaDb).parseDataFileField('unsupported', {}).catch((err) => {
             expect(err.message.startsWith('Unsupported parser type (string) present in :datafile$:unsupported')).toBeTruthy();
+            done();
+        });
+    });
+
+    it('properties field is missing required definition', (done) => {
+        const schema = {
+            id: '/test',
+            properties: {}, // foobar field should be present here
+            required: ['foobar']
+        };
+
+        const obj = new SchemaParser(null, null, null);
+
+        obj.processObjectReferenceData({}, schema).catch((err) => {
+            const expectedMsg = 'Properties \'foobar\' not found from schema /test';
+            expect(err.message).toEqual(expectedMsg);
+            done();
+        });
+    });
+
+    it('object data is read recursively', (done) => {
+        const data = {
+            product: 'test/fixtures/specs/database/product-a.json'
+        };
+
+        const obj = new SchemaParser(null, DATABASE, null);
+        obj.processObjectReferenceData(data, DATABASE['/parent']).then(() => {
+            expect(data.product.factories.length).toEqual(2);
+            done();
+        });
+    });
+
+    it('recursive object data read fails', (done) => {
+        const data = {
+            product: 'test/fixtures/specs/database/product-a.json'
+        };
+
+        const db = Object.assign({}, DATABASE);
+        delete db['/product'].properties.factories;
+
+        const obj = new SchemaParser(null, db, null);
+        obj.processObjectReferenceData(data, db['/parent']).catch((err) => {
+            const expectedMsg = 'Properties \'factories\' not found from schema /product';
+            expect(err.message).toEqual(expectedMsg);
             done();
         });
     });
