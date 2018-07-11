@@ -18,13 +18,9 @@ describe('JsonWriter', () => {
 
     it('write fails due to invalid schema DB path', (done) => {
         const manifest = {
-            environments: {
-                dev: {
-                    output: 'foo',
-                    target: 'bar',
-                    schemaDb: 'test/fixtures/specs/schema/database2'
-                }
-            }
+            output: 'foo',
+            target: 'bar',
+            schemaDb: 'test/fixtures/specs/schema/database2'
         };
 
         runTest(manifest, 'dev', () => {
@@ -37,13 +33,9 @@ describe('JsonWriter', () => {
 
     it('write fails due to invalid JSON file in schema DB path', (done) => {
         const manifest = {
-            environments: {
-                dev: {
-                    output: 'foo',
-                    target: 'bar',
-                    schemaDb: 'test/fixtures/specs/schema/errorneous'
-                }
-            }
+            output: 'foo',
+            target: 'bar',
+            schemaDb: 'test/fixtures/specs/schema/errorneous'
         };
 
         runTest(manifest, 'dev', () => {
@@ -55,13 +47,9 @@ describe('JsonWriter', () => {
 
     it('write fails due to input schema validation errors', (done) => {
         const manifest = {
-            environments: {
-                dev: {
-                    output0: 'foo',
-                    target: 'bar',
-                    schemaDb: 'test/fixtures/specs/schema/database'
-                }
-            }
+            output0: 'foo',
+            target: 'bar',
+            schemaDb: 'test/fixtures/specs/schema/database'
         };
 
         runTest(manifest, 'dev', () => {
@@ -73,13 +61,9 @@ describe('JsonWriter', () => {
 
     it('write fails due to bundle schema validation errors', (done) => {
         const manifest = {
-            environments: {
-                dev: {
-                    output: 'build/release.json',
-                    target: 'test/fixtures/specs/manifest/verification-2.json',
-                    schemaDb: 'test/fixtures/specs/schema/database'
-                }
-            }
+            output: 'build/release.json',
+            target: 'test/fixtures/specs/manifest/verification-2.json',
+            schemaDb: 'test/fixtures/specs/schema/database'
         };
 
         runTest(manifest, 'dev', () => {

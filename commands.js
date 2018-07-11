@@ -17,7 +17,7 @@ program
         'dev'
     )
     .action((options) => {
-        JsonBundler.create(options.env.split(','), options.manifest).init()
+        JsonBundler.create(options.env.split(','), options.manifest).write()
             .then((response) => {
                 console.log('\nJSON bundle created for following environments:');
                 response.forEach(item => console.log(item));

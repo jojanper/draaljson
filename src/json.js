@@ -1,10 +1,9 @@
-const { Validator } = require('jsonschema');
-
 const {
     writeJson, promiseExec, log
 } = require('./utils');
 const SchemaLoader = require('./loader');
 const { SchemaParser } = require('./writer');
+const { JsonValidator } = require('./validator');
 
 
 // Schema that the manifest for the JsonWriter must follow
@@ -20,9 +19,13 @@ const INPUT_SCHEMA = {
 };
 
 
+/**
+ * Validate and create JSON bundle output. The manifest data must follow input schema definition.
+ * @see INPUT_SCHEMA
+ */
 class JsonWriter {
     static create(manifest, env) {
-        const instance = new JsonWriter(manifest.environments[env], env);
+        const instance = new JsonWriter(manifest, env);
         return instance.write().catch((err) => {
             log.logError(err.message, {trace: true});
         });
@@ -58,10 +61,9 @@ class JsonWriter {
     }
 
     _validateJson(data, schema) {
-        const validator = new Validator();
-        const result = validator.validate(data, schema);
-        if (result.errors.length) {
-            result.errors.forEach(error => log.logError(error));
+        const errors = JsonValidator.create().validate(data, schema);
+        if (errors && errors.length) {
+            errors.forEach(error => log.logError(error));
             throw new Error(`JSON schema validation failed for environment: ${this.env}`);
         }
     }

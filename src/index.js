@@ -2,17 +2,26 @@ const { JsonWriter } = require('./json');
 const { readJson, promiseExec, log } = require('./utils');
 
 
+/**
+ * High level interface for creating JSON bundle.
+ */
 class JsonBundler {
-    static create(env, manifestName) {
-        return new JsonBundler(env, manifestName);
+    /**
+     * Factory interface.
+     *
+     * @param {array} envs List of target environments for which JSON bundle should be created.
+     * @param {string} manifestName Manifest file that contains the environment definition.
+     */
+    static create(envs, manifestName) {
+        return new JsonBundler(envs, manifestName);
     }
 
-    constructor(env, manifestName) {
-        this.env = env;
+    constructor(envs, manifestName) {
+        this.envs = envs;
         this.manifestName = manifestName;
     }
 
-    async init() {
+    async write() {
         // Read the high-level bundle manifest
         const [err, manifest] = await promiseExec(readJson(this.manifestName));
         if (err) {
@@ -22,7 +31,7 @@ class JsonBundler {
 
         // Make sure targets are available
         let abort = false;
-        this.env.forEach((env) => {
+        this.envs.forEach((env) => {
             if (!manifest.environments[env]) {
                 log.logError(`No '${env}' environment found from ${this.manifestName}`);
                 abort = true;
@@ -34,13 +43,15 @@ class JsonBundler {
         }
 
         /*
-         * Create the JSON bundle for all environments. Since we are using Promise.all
-         * to execute bundle creation for all environments, the return value will be
-         * an array that describes the environments that succeeded.
+         * Create the JSON bundle for all pecified environments. Since we are using Promise.all
+         * to execute the bundle creation for all environments, the return value will be
+         * an array that describes which of the environments succeeded.
          */
         const promises = [];
-        this.env.forEach(env => promises.push(JsonWriter.create(manifest, env)));
+        this.envs.forEach(env => promises.push(JsonWriter.create(manifest.environments[env], env)));
         const response = await promiseExec(Promise.all(promises));
+
+        // Include only environments that succeeded as output
         return response[1].filter(env => env);
     }
 }

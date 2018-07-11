@@ -15,7 +15,7 @@ describe('JsonBundler', () => {
     it('init fails due to invalid input manifest path', (done) => {
         const obj = JsonBundler.create(['dev'], 'foo');
 
-        obj.init().then((createdEnvs) => {
+        obj.write().then((createdEnvs) => {
             expect(createdEnvs.length).toEqual(0);
             expect(log.logError).toHaveBeenCalledTimes(1);
             done();
@@ -26,7 +26,7 @@ describe('JsonBundler', () => {
         const envs = ['foo', 'bar'];
         const obj = JsonBundler.create(envs, MANIFEST_PATH);
 
-        obj.init().then((createdEnvs) => {
+        obj.write().then((createdEnvs) => {
             expect(createdEnvs.length).toEqual(0);
             expect(log.logError).toHaveBeenCalledTimes(2);
             done();
@@ -37,7 +37,7 @@ describe('JsonBundler', () => {
         const envs = ['dev'];
         const obj = JsonBundler.create(envs, MANIFEST_PATH);
 
-        obj.init().then((createdEnvs) => {
+        obj.write().then((createdEnvs) => {
             expect(createdEnvs.length).toEqual(1);
             expect(envs).toEqual(envs);
 
