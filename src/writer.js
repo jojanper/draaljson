@@ -33,6 +33,44 @@ class JsonItemWriter {
     }
 }
 
+class DataFieldReader {
+    constructor(data, field, fieldType, ref) {
+        this.data = data;
+        this.field = field;
+        this.fieldType = fieldType;
+        this.ref = ref;
+    }
+
+    get hasFileRefInObject() {
+        const data = this.data[this.field];
+        return (this.fieldType === 'object' && misc.isObject(data) && data.filepath$);
+    }
+
+    get mustRead() {
+        if (this.hasFileRefInObject) {
+            return true;
+        }
+
+        return misc.isString(this.data[this.field]);
+    }
+
+    get targetPath() {
+        return this.hasFileRefInObject ? this.data[this.field].filepath$ : this.data[this.field];
+    }
+
+    async read() {
+        const target = this.targetPath;
+
+        // File path may be referenced with respect to parent path
+        const filePath = (this.ref && target.startsWith('filepath$')) ?
+            target.replace('filepath$', path.dirname(this.ref)) : target;
+
+        const json = await readJson(filePath);
+
+        return json;
+    }
+}
+
 class SchemaParser {
     static create(manifest, schemaDb, schema) {
         return new SchemaParser(manifest, schemaDb, schema);
@@ -125,22 +163,10 @@ class SchemaParser {
 
             const fieldType = this.getFieldType(property);
             if (fieldType === 'array' || fieldType === 'object') {
-                let target = data[key];
-                let canRead = misc.isString(data[key]);
-
-                const hasFileRef = (fieldType === 'object' && misc.isObject(data[key]));
-                if (hasFileRef && data[key].filepath$) {
-                    canRead = true;
-                    target = data[key].filepath$;
-                }
-
-                if (canRead) {
-                    // File path is referenced with respect to parent manifest path
-                    const filePath = (this.ref && target.startsWith('filepath$')) ?
-                        target.replace('filepath$', path.dirname(this.ref)) : target;
-
+                const reader = new DataFieldReader(data, key, fieldType, this.ref);
+                if (reader.mustRead) {
                     keys.push(key);
-                    promises.push(readJson(filePath));
+                    promises.push(reader.read());
                 }
             }
         });
