@@ -1,3 +1,5 @@
 {
-    "price": 700
+    "price": 700,
+    "package": "black",
+    "manual": false
 }

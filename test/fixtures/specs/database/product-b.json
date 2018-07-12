@@ -3,5 +3,7 @@
     "components": 9,
     "bom": 5,
     "factories": "test/fixtures/specs/database/product-b-factories.json",
-    "info": "test/fixtures/specs/database/product-b-info.json"
+    "info": {
+        "filepath$": "test/fixtures/specs/database/product-b-info.json"
+    }
 }

@@ -13,7 +13,9 @@ const REF_OUTPUT = {
                 'China'
             ],
             info: {
-                price: 700
+                price: 700,
+                package: 'black',
+                manual: false
             }
         },
         {
@@ -25,7 +27,9 @@ const REF_OUTPUT = {
                 'Taiwan'
             ],
             info: {
-                price: 900
+                price: 900,
+                package: 'red',
+                manual: true
             }
         }
     ],

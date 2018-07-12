@@ -2,6 +2,8 @@
     "id": "/info",
     "type": "object",
     "properties": {
+      "package": {"type": "string"},
+      "manual": {"type": "boolean"},
       "price": {"type": "integer"}
     },
     "required": ["price"]

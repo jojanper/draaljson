@@ -125,11 +125,19 @@ class SchemaParser {
 
             const fieldType = this.getFieldType(property);
             if (fieldType === 'array' || fieldType === 'object') {
-                if (misc.isString(data[key])) {
+                let target = data[key];
+                let canRead = misc.isString(data[key]);
+
+                const hasFileRef = (fieldType === 'object' && misc.isObject(data[key]));
+                if (hasFileRef && data[key].filepath$) {
+                    canRead = true;
+                    target = data[key].filepath$;
+                }
+
+                if (canRead) {
                     // File path is referenced with respect to parent manifest path
-                    const filePath = (this.ref && data[key].startsWith('filepath$')) ?
-                        data[key].replace('filepath$', path.dirname(this.ref)) :
-                        data[key];
+                    const filePath = (this.ref && target.startsWith('filepath$')) ?
+                        target.replace('filepath$', path.dirname(this.ref)) : target;
 
                     keys.push(key);
                     promises.push(readJson(filePath));

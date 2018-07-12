@@ -1,2 +1,7 @@
 - make sure property type can be detected
 - filter final bundle json output from unwanted data fields
+- object reference may contain base data pointer:
+  "data": {
+      "filepath$": "<path>",
+      "basedata$": "<data-path>"
+  }
