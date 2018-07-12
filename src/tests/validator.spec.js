@@ -30,7 +30,7 @@ describe('JsonValidator', () => {
             }
         ];
 
-        const result = JsonValidator.create(SCHEMAS).validate(data, PRODUCTS);
+        const result = JsonValidator.create().addSchemas(SCHEMAS).validate(data, PRODUCTS);
         expect(result.length).toEqual(1);
         expect(result[0].property).toEqual('instance');
     });
@@ -46,14 +46,14 @@ describe('JsonValidator', () => {
             ]
         };
 
-        const result = JsonValidator.create(SCHEMAS).validate(data, PRODUCTS);
+        const result = JsonValidator.create().addSchemas(SCHEMAS).validate(data, PRODUCTS);
         expect(result.length).toEqual(1);
         expect(result[0].property).toEqual('instance.products[0].components');
     });
 
     it('validation succeeds', () => {
         const { data$: data } = PRODUCTS_MANIFEST_DATA;
-        const result = JsonValidator.create(SCHEMAS).validate(data, PRODUCTS);
+        const result = JsonValidator.create().addSchemas(SCHEMAS).validate(data, PRODUCTS);
         expect(result).toBeNull();
     });
 });

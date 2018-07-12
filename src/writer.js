@@ -18,7 +18,7 @@ class JsonItemWriter {
     }
 
     write(schemaDb) {
-        const errors = JsonValidator.create(schemaDb).validate(this.data, this.schema);
+        const errors = JsonValidator.create().addSchemas(schemaDb).validate(this.data, this.schema);
         if (errors && errors.length) {
             errors.forEach(error => log.logError(error));
             throw new Error(`JSON schema validation failed for ${this.schema.id}`);

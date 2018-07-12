@@ -17,7 +17,7 @@ describe('JsonItemWriter', () => {
 
         const obj = new JsonItemWriter(data, PRODUCT);
 
-        obj.write();
+        expect(obj.write()).toBeDefined();
     });
 
     it('json creation fails', () => {

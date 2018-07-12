@@ -2,16 +2,20 @@ const { Validator } = require('jsonschema');
 
 
 class JsonValidator {
-    static create(allSchema) {
-        return new JsonValidator(allSchema);
+    static create() {
+        return new JsonValidator();
     }
 
-    constructor(schemas) {
+    constructor() {
         this.validator = new Validator();
+    }
+
+    addSchemas(schemas) {
         if (schemas) {
-            Object.keys(schemas).forEach(key =>
-                this.validator.addSchema(schemas[key], schemas[key].id));
+            Object.keys(schemas).forEach(key => this.validator.addSchema(schemas[key], schemas[key].id));
         }
+
+        return this;
     }
 
     validate(data, schema) {
