@@ -7,6 +7,11 @@ const {
 } = require('./utils');
 
 
+function getFilePath(target, parentDir, prefix = 'filepath$') {
+    return (parentDir && target.startsWith(prefix)) ? target.replace(prefix, path.dirname(parentDir)) : target;
+}
+
+
 class JsonItemWriter {
     static create(data, schema) {
         return new JsonItemWriter(data, schema);
@@ -46,6 +51,10 @@ class DataFieldReader {
         return (this.fieldType === 'object' && misc.isObject(data) && data.filepath$);
     }
 
+    get hasBaseData$() {
+        return (this.hasFileRefInObject && this.data[this.field].basedata$);
+    }
+
     get mustRead() {
         if (this.hasFileRefInObject) {
             return true;
@@ -58,14 +67,29 @@ class DataFieldReader {
         return this.hasFileRefInObject ? this.data[this.field].filepath$ : this.data[this.field];
     }
 
-    async read() {
-        const target = this.targetPath;
+    read(keys, promises) {
+        if (this.mustRead) {
+            keys.push(this.field);
+            promises.push(this._readImpl());
+        }
+    }
 
+    async _readImpl() {
         // File path may be referenced with respect to parent path
-        const filePath = (this.ref && target.startsWith('filepath$')) ?
-            target.replace('filepath$', path.dirname(this.ref)) : target;
+        const filePath = getFilePath(this.targetPath, this.ref);
+        let json = await readJson(filePath);
 
-        const json = await readJson(filePath);
+        if (this.hasBaseData$) {
+            const target = this.data[this.field].basedata$;
+            const baseDataPath = getFilePath(target, this.ref);
+
+            const baseJson = await readJson(baseDataPath);
+
+            json = {
+                ...baseJson,
+                ...json
+            };
+        }
 
         return json;
     }
@@ -164,10 +188,7 @@ class SchemaParser {
             const fieldType = this.getFieldType(property);
             if (fieldType === 'array' || fieldType === 'object') {
                 const reader = new DataFieldReader(data, key, fieldType, this.ref);
-                if (reader.mustRead) {
-                    keys.push(key);
-                    promises.push(reader.read());
-                }
+                reader.read(keys, promises);
             }
         });
 

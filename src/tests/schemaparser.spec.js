@@ -28,7 +28,7 @@ const REF_OUTPUT = {
             ],
             info: {
                 price: 900,
-                package: 'red',
+                package: 'pink',
                 manual: true
             }
         }

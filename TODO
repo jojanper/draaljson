@@ -3,5 +3,5 @@
 - object reference may contain base data pointer:
   "data": {
       "filepath$": "<path>",
-      "basedata$": "<data-path>"
+      "basedata$": "<data-path>" or object
   }

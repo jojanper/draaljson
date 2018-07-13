@@ -4,7 +4,7 @@
     "bom": 5,
     "factories": "test/fixtures/specs/database/product-b-factories.json",
     "info": {
-        "basedata$": "",
+        "basedata$": "filepath$/common-info.json",
         "filepath$": "test/fixtures/specs/database/product-b-info.json"
     }
 }
