@@ -12,6 +12,9 @@ function getFilePath(target, parentDir, prefix = 'filepath$') {
 }
 
 
+/**
+ * Create JSON output given the input data and associated schema.
+ */
 class JsonItemWriter {
     static create(data, schema) {
         return new JsonItemWriter(data, schema);
@@ -22,6 +25,7 @@ class JsonItemWriter {
         this.schema = schema;
     }
 
+    // Create the output, complex schema can be validated by including schema database as input parameter
     write(schemaDb) {
         const errors = JsonValidator.create().addSchemas(schemaDb).validate(this.data, this.schema);
         if (errors && errors.length) {
@@ -38,6 +42,31 @@ class JsonItemWriter {
     }
 }
 
+/**
+ * Input data field may actually contain reference to the actual JSON as file path. Thus,
+ * the class handles mapping from the file reference to the actual data. The file reference
+ * may be a string or object which contains the reference. The following options are supported:
+ *
+ * {
+ *     foo: "<file-path-to-foo-data.json"
+ * }
+ * This reads data for field 'foo' from specified path.
+ *
+ * {
+ *     foo: {
+ *         filepath$: "<file-path-to-foo-data.json"
+ *     }
+ * }
+ * This reads data for field 'foo' from foo.filepath$.
+ *
+ * {
+ *     foo: {
+ *         basedata$: "<file-path-to-foo-base-data.json"
+ *         filepath$: "<file-path-to-foo-data.json"
+ *     }
+ * }
+ * The data for field 'foo' is a combination of data read from foo.basedata$ and foo.filepath$.
+ */
 class DataFieldReader {
     constructor(data, field, fieldType, ref) {
         this.data = data;
@@ -46,15 +75,18 @@ class DataFieldReader {
         this.ref = ref;
     }
 
+    // Return true if target data contains file reference field
     get hasFileRefInObject() {
         const data = this.data[this.field];
         return (this.fieldType === 'object' && misc.isObject(data) && data.filepath$);
     }
 
+    // Return true if target data contains base data reference field
     get hasBaseData$() {
         return (this.hasFileRefInObject && this.data[this.field].basedata$);
     }
 
+    // Return true if target data should be treated as reference to a JSON file
     get mustRead() {
         if (this.hasFileRefInObject) {
             return true;
@@ -63,10 +95,12 @@ class DataFieldReader {
         return misc.isString(this.data[this.field]);
     }
 
+    // Return file path that references the JSON file
     get targetPath() {
         return this.hasFileRefInObject ? this.data[this.field].filepath$ : this.data[this.field];
     }
 
+    // Add target data reading to list of promises, if any
     read(keys, promises) {
         if (this.mustRead) {
             keys.push(this.field);
@@ -74,17 +108,20 @@ class DataFieldReader {
         }
     }
 
+    // Read JSON data from file reference
     async _readImpl() {
         // File path may be referenced with respect to parent path
         const filePath = getFilePath(this.targetPath, this.ref);
         let json = await readJson(filePath);
 
+        // It is possible to specify also base data for the target
         if (this.hasBaseData$) {
             const target = this.data[this.field].basedata$;
             const baseDataPath = getFilePath(target, this.ref);
 
             const baseJson = await readJson(baseDataPath);
 
+            // Final data is the base + customized data
             json = {
                 ...baseJson,
                 ...json
