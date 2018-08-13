@@ -32,8 +32,8 @@ class JsonBundler {
         // Make sure targets are available
         let abort = false;
         this.envs.forEach((env) => {
-            if (!manifest.environments[env]) {
-                log.logError(`No '${env}' environment found from ${this.manifestName}`);
+            if (!manifest.bundles[env]) {
+                log.logError(`No '${env}' bundle target found from ${this.manifestName}`);
                 abort = true;
             }
         });
@@ -48,7 +48,7 @@ class JsonBundler {
          * an array that describes which of the environments succeeded.
          */
         const promises = [];
-        this.envs.forEach(env => promises.push(JsonWriter.create(manifest.environments[env], env)));
+        this.envs.forEach(env => promises.push(JsonWriter.create(manifest.bundles[env], env)));
         const response = await promiseExec(Promise.all(promises));
 
         // Include only environments that succeeded as output
