@@ -4,7 +4,13 @@
     "properties": {
       "package": {"type": "string"},
       "manual": {"type": "boolean"},
-      "price": {"type": "integer"}
+      "price": {"type": "integer"},
+      "regions": {
+        "type": "array",
+        "items": {"type": "string"},
+        "minItems": 1,
+        "uniqueItems": true
+      }
     },
-    "required": ["price"]
+    "required": ["price", "manual", "package", "regions"]
 }

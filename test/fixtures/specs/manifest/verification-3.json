@@ -2,7 +2,7 @@
     "schema$": "test/fixtures/specs/schema/database/deliverable.json",
     "datafile$": {
         "products": [
-            "test/fixtures/specs/database/product-b.json"
+            "test/fixtures/specs/database/products/b/product-b.json"
         ],
         "about": "about-does-not-exist.json"
     },

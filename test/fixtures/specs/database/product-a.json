@@ -1,7 +1,0 @@
-{
-    "name": "device-foo",
-    "components": 7,
-    "bom": 3,
-    "factories": "test/fixtures/specs/database/product-a-factories.json",
-    "info": "test/fixtures/specs/database/product-a-info.json"
-}

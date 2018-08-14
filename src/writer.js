@@ -7,8 +7,8 @@ const {
 } = require('./utils');
 
 
-function getFilePath(target, parentDir, prefix = 'filepath$') {
-    return (parentDir && target.startsWith(prefix)) ? target.replace(prefix, path.dirname(parentDir)) : target;
+function getFilePath(target, parentRef, prefix = 'filepath$') {
+    return (parentRef && target.startsWith(prefix)) ? target.replace(prefix, path.dirname(parentRef)) : target;
 }
 
 
@@ -61,18 +61,29 @@ class JsonItemWriter {
  *
  * {
  *     foo: {
- *         basedata$: "<file-path-to-foo-base-data.json"
+ *         basedata$: "<file-path-to-foo-base-data.json",
  *         filepath$: "<file-path-to-foo-data.json"
  *     }
  * }
  * The data for field 'foo' is a combination of data read from foo.basedata$ and foo.filepath$.
+ *
+ * {
+ *     foo: {
+ *         basedata$: "<file-path-to-foo-base-data.json",
+ *         filepath$: "<file-path-to-foo-data.json",
+ *         data$: {foo: 'bar'}
+ *     }
+ * }
+ * The data for field 'foo' is a combination of data read from foo.basedata$, foo.filepath$ and foo.data$.
+ *
+ * The parentRef parameter contains the file path where the field data was originally specified.
  */
 class DataFieldReader {
-    constructor(data, field, fieldType, ref) {
+    constructor(data, field, fieldType, parentRef) {
         this.data = data;
         this.field = field;
         this.fieldType = fieldType;
-        this.ref = ref;
+        this.parentRef = parentRef;
     }
 
     // Return true if target data contains file reference field
@@ -84,6 +95,11 @@ class DataFieldReader {
     // Return true if target data contains base data reference field
     get hasBaseData$() {
         return (this.hasFileRefInObject && this.data[this.field].basedata$);
+    }
+
+    // Return true if target data contains data$ reference field
+    get hasData$() {
+        return (this.hasFileRefInObject && this.data[this.field].data$);
     }
 
     // Return true if target data should be treated as reference to a JSON file
@@ -101,9 +117,10 @@ class DataFieldReader {
     }
 
     // Add target data reading to list of promises, if any
-    read(keys, promises) {
+    read(keys, promises, refs) {
         if (this.mustRead) {
             keys.push(this.field);
+            refs.push(this.fileRef);
             promises.push(this._readImpl());
         }
     }
@@ -111,13 +128,13 @@ class DataFieldReader {
     // Read JSON data from file reference
     async _readImpl() {
         // File path may be referenced with respect to parent path
-        const filePath = getFilePath(this.targetPath, this.ref);
+        const filePath = getFilePath(this.targetPath, this.parentRef);
         let json = await readJson(filePath);
 
         // It is possible to specify also base data for the target
         if (this.hasBaseData$) {
             const target = this.data[this.field].basedata$;
-            const baseDataPath = getFilePath(target, this.ref);
+            const baseDataPath = getFilePath(target, this.parentRef);
 
             const baseJson = await readJson(baseDataPath);
 
@@ -128,7 +145,28 @@ class DataFieldReader {
             };
         }
 
+        // And finally also customized data on top
+        if (this.hasData$) {
+            json = {...json, ...this.data[this.field].data$};
+        }
+
         return json;
+    }
+
+    /**
+     * Return the name of the file which included the data for the specified field.
+     * The name may change from input parentRef in case the data contains reference
+     * to base data. In that case the name is changed to the filepath of the base
+     * data as that data may contain file references that are specific to that
+     * data.
+     */
+    get fileRef() {
+        if (this.hasBaseData$) {
+            const target = this.data[this.field].basedata$;
+            return getFilePath(target, this.parentRef);
+        }
+
+        return getFilePath(this.targetPath, this.parentRef);
     }
 }
 
@@ -210,8 +248,9 @@ class SchemaParser {
         return json;
     }
 
-    async processObjectReferenceData(data, schema) {
+    async processObjectReferenceData(data, schema, ref) {
         const keys = [];
+        const refs = [];
         const promises = [];
 
         // Read objects and arrays from file if target is string
@@ -224,8 +263,8 @@ class SchemaParser {
 
             const fieldType = this.getFieldType(property);
             if (fieldType === 'array' || fieldType === 'object') {
-                const reader = new DataFieldReader(data, key, fieldType, this.ref);
-                reader.read(keys, promises);
+                const reader = new DataFieldReader(data, key, fieldType, ref);
+                reader.read(keys, promises, refs);
             }
         });
 
@@ -244,7 +283,7 @@ class SchemaParser {
             const property = schema.properties[key];
             const fieldType = this.getFieldType(property);
             if (fieldType === 'object') {
-                promises.push(this.processObjectReferenceData(data[key], this.schemaDb[property.$ref]));
+                promises.push(this.processObjectReferenceData(data[key], this.schemaDb[property.$ref], refs[index]));
             }
         });
 
@@ -277,7 +316,7 @@ class SchemaParser {
         // Does the manifest contain schema directives or it plain data object
         if (!this.manifest.schema$ && !this.manifest.datafile$) {
             // Manifest may contain file references, process those before creating the JSON output
-            await this.processObjectReferenceData(this.manifest, schema);
+            await this.processObjectReferenceData(this.manifest, schema, this.ref);
 
             // Manifest is actually the JSON data, validate and create the output based on specified scheme
             jsonOutput = {

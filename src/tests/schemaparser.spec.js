@@ -15,7 +15,11 @@ const REF_OUTPUT = {
             info: {
                 price: 700,
                 package: 'black',
-                manual: false
+                manual: false,
+                regions: [
+                    'Europe',
+                    'North America'
+                ]
             }
         },
         {
@@ -29,7 +33,29 @@ const REF_OUTPUT = {
             info: {
                 price: 900,
                 package: 'pink',
-                manual: true
+                manual: true,
+                regions: [
+                    'Europe',
+                    'North America'
+                ]
+            }
+        },
+        {
+            name: 'device-d',
+            components: 8,
+            bom: 4,
+            factories: [
+                'USA',
+                'China'
+            ],
+            info: {
+                package: 'black',
+                manual: false,
+                regions: [
+                    'Europe',
+                    'North America'
+                ],
+                price: 1700
             }
         }
     ],
@@ -113,8 +139,8 @@ describe('SchemaParser', () => {
             schema$: 'test/fixtures/specs/schema/database/deliverable.json',
             datafile$: {
                 products: [
-                    'test/fixtures/specs/database/product-a.json',
-                    'test/fixtures/specs/database/product-b.json'
+                    'test/fixtures/specs/database/products/a/product-a.json',
+                    'test/fixtures/specs/database/products/b/product-b.json'
                 ]
             }
         };
@@ -195,27 +221,29 @@ describe('SchemaParser', () => {
     });
 
     it('object data is read recursively', (done) => {
+        const filePath = 'test/fixtures/specs/database/products/a/product-a.json';
         const data = {
-            product: 'test/fixtures/specs/database/product-a.json'
+            product: filePath
         };
 
         const obj = new SchemaParser(null, DATABASE, null);
-        obj.processObjectReferenceData(data, DATABASE['/parent']).then(() => {
+        obj.processObjectReferenceData(data, DATABASE['/parent'], filePath).then(() => {
             expect(data.product.factories.length).toEqual(2);
             done();
         });
     });
 
     it('recursive object data read fails', (done) => {
+        const filePath = 'test/fixtures/specs/database/products/a/product-a.json';
         const data = {
-            product: 'test/fixtures/specs/database/product-a.json'
+            product: filePath
         };
 
         const db = Object.assign({}, DATABASE);
         delete db['/product'].properties.factories;
 
         const obj = new SchemaParser(null, db, null);
-        obj.processObjectReferenceData(data, db['/parent']).catch((err) => {
+        obj.processObjectReferenceData(data, db['/parent'], filePath).catch((err) => {
             const expectedMsg = 'Properties \'factories\' not found from schema /product';
             expect(err.message).toEqual(expectedMsg);
             done();
