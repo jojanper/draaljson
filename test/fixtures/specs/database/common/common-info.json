@@ -1,5 +1,8 @@
 {
     "package": "pink",
     "manual": true,
-    "regions": "filepath$/regions.json"
+    "regions": [
+        "Europe",
+        "North America"
+    ]
 }

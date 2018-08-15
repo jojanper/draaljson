@@ -4,8 +4,10 @@
     "bom": 4,
     "factories": "filepath$/../a/product-a-factories.json",
     "info": {
-        "basedata$": "filepath$/../../common/common-info.json",
-        "filepath$": "filepath$/../a/product-a-info.json",
+        "filepath$": [
+            "filepath$/../../common/common-info.json",
+            "filepath$/../a/product-a-info.json"
+        ],
         "data$": {
             "price": 1700
         }

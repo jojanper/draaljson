@@ -5,7 +5,9 @@
     "bom": 5,
     "factories": "filepath$/product-b-factories.json",
     "info": {
-        "basedata$": "filepath$/../../common/common-info.json",
-        "filepath$": "filepath$/product-b-info.json"
+        "filepath$": [
+            "filepath$/../../common/common-info.json",
+            "filepath$/product-b-info.json"
+        ]
     }
 }

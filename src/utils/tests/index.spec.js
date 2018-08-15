@@ -11,6 +11,36 @@ describe('utils interface', () => {
     it('supports promiseExec', () => {
         expect(utils.promiseExec).toBeDefined();
     });
+
+    it('supports getRef', () => {
+        let property = {
+            $ref: '/foo'
+        };
+        expect(utils.getRef(property)).toEqual('/foo');
+
+        property = {
+            oneOf: [
+                {$ref: '/foo'},
+                {type: 'null'}
+            ]
+        };
+        expect(utils.getRef(property)).toEqual('/foo');
+    });
+
+    it('supports getType', () => {
+        let property = {
+            type: 'array'
+        };
+        expect(utils.getType(property)).toEqual('array');
+
+        property = {
+            oneOf: [
+                {type: 'array'},
+                {type: 'null'}
+            ]
+        };
+        expect(utils.getType(property)).toEqual('array');
+    });
 });
 
 describe('utils.misc interface', () => {

@@ -57,7 +57,29 @@ const writeJson = (fileName, json) => {
 };
 
 
+/**
+ * Extract json reference from field property object.
+ *
+ * @param {object} property Field property.
+ *
+ * @return {string} Reference.
+ */
+const getRef = property => property.$ref || property.oneOf[0].$ref;
+
+
+/**
+ * Extract data type from field property object.
+ *
+ * @param {object} property Field property.
+ *
+ * @return {string} Type.
+ */
+const getType = property => property.type || (property.oneOf ? property.oneOf[0].type : undefined) || undefined;
+
+
 module.exports = {
+    getRef,
+    getType,
     promiseExec,
     readJson,
     writeJson,

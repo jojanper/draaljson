@@ -3,7 +3,7 @@ const { from, forkJoin } = require('rxjs');
 
 const { JsonValidator } = require('./validator');
 const {
-    log, misc, readJson, promiseExec
+    log, misc, readJson, promiseExec, getRef, getType
 } = require('./utils');
 
 
@@ -54,27 +54,28 @@ class JsonItemWriter {
  *
  * {
  *     foo: {
- *         filepath$: "<file-path-to-foo-data.json"
+ *         filepath$: ["<file-path-to-foo-data.json"]
  *     }
  * }
- * This reads data for field 'foo' from foo.filepath$.
+ * This reads data for field 'foo' from foo.filepath$[0].
  *
  * {
  *     foo: {
- *         basedata$: "<file-path-to-foo-base-data.json",
- *         filepath$: "<file-path-to-foo-data.json"
+ *         filepath$: [
+ *             "<file-path-to-foo-base-data.json",
+ *             "<file-path-to-foo-data.json"
+ *         ]
  *     }
  * }
- * The data for field 'foo' is a combination of data read from foo.basedata$ and foo.filepath$.
+ * The data for field 'foo' is a combination of data read from foo.filepath$[0]$ and foo.filepath$[1].
  *
  * {
  *     foo: {
- *         basedata$: "<file-path-to-foo-base-data.json",
- *         filepath$: "<file-path-to-foo-data.json",
+ *         filepath$: ["<file-path-to-foo-data.json"],
  *         data$: {foo: 'bar'}
  *     }
  * }
- * The data for field 'foo' is a combination of data read from foo.basedata$, foo.filepath$ and foo.data$.
+ * The data for field 'foo' is a combination of data read from foo.filepath$ and foo.data$.
  *
  * The parentRef parameter contains the file path where the field data was originally specified.
  */
@@ -92,11 +93,6 @@ class DataFieldReader {
         return (this.fieldType === 'object' && misc.isObject(data) && data.filepath$);
     }
 
-    // Return true if target data contains base data reference field
-    get hasBaseData$() {
-        return (this.hasFileRefInObject && this.data[this.field].basedata$);
-    }
-
     // Return true if target data contains data$ reference field
     get hasData$() {
         return (this.hasFileRefInObject && this.data[this.field].data$);
@@ -112,8 +108,20 @@ class DataFieldReader {
     }
 
     // Return file path that references the JSON file
-    get targetPath() {
-        return this.hasFileRefInObject ? this.data[this.field].filepath$ : this.data[this.field];
+    get targetPaths() {
+        return this.hasFileRefInObject ? this.data[this.field].filepath$ : [this.data[this.field]];
+    }
+
+    /**
+     * Return the name of the file which included the data for the specified field.
+     * The name may change from input parentRef in case the data contains reference
+     * to base data. In that case the name is changed to the filepath of the base
+     * data as that data may contain file references that are specific to that
+     * data.
+     */
+    get fileRef() {
+        const paths = this.targetPaths;
+        return getFilePath(paths[paths.length - 1], this.parentRef);
     }
 
     // Add target data reading to list of promises, if any
@@ -125,48 +133,39 @@ class DataFieldReader {
         }
     }
 
-    // Read JSON data from file reference
+    // Read JSON data from file reference(s)
     async _readImpl() {
-        // File path may be referenced with respect to parent path
-        const filePath = getFilePath(this.targetPath, this.parentRef);
-        let json = await readJson(filePath);
+        let i = 0;
 
-        // It is possible to specify also base data for the target
-        if (this.hasBaseData$) {
-            const target = this.data[this.field].basedata$;
-            const baseDataPath = getFilePath(target, this.parentRef);
+        let json = {};
 
-            const baseJson = await readJson(baseDataPath);
+        /* eslint-disable no-restricted-syntax */
+        /* eslint-disable no-await-in-loop */
+        // Extract data from file references
+        const paths = this.targetPaths;
+        for (const targetPath of paths) {
+            // Resolve path and read the data
+            const filePath = getFilePath(targetPath, this.parentRef);
+            const data = await readJson(filePath);
 
-            // Final data is the base + customized data
-            json = {
-                ...baseJson,
-                ...json
-            };
+            // Either assign initial data or extend the previous data
+            if (i === 0) {
+                json = data;
+            } else {
+                json = {...json, ...data};
+            }
+
+            i++;
         }
+        /* eslint-enable no-await-in-loop */
+        /* eslint-enable no-restricted-syntax */
 
-        // And finally also customized data on top
+        // And finally customized data on top
         if (this.hasData$) {
             json = {...json, ...this.data[this.field].data$};
         }
 
         return json;
-    }
-
-    /**
-     * Return the name of the file which included the data for the specified field.
-     * The name may change from input parentRef in case the data contains reference
-     * to base data. In that case the name is changed to the filepath of the base
-     * data as that data may contain file references that are specific to that
-     * data.
-     */
-    get fileRef() {
-        if (this.hasBaseData$) {
-            const target = this.data[this.field].basedata$;
-            return getFilePath(target, this.parentRef);
-        }
-
-        return getFilePath(this.targetPath, this.parentRef);
     }
 }
 
@@ -283,7 +282,7 @@ class SchemaParser {
             const property = schema.properties[key];
             const fieldType = this.getFieldType(property);
             if (fieldType === 'object') {
-                promises.push(this.processObjectReferenceData(data[key], this.schemaDb[property.$ref], refs[index]));
+                promises.push(this.processObjectReferenceData(data[key], this.schemaDb[getRef(property)], refs[index]));
             }
         });
 
@@ -348,7 +347,7 @@ class SchemaParser {
 
             switch (fieldType) {
             case 'array': {
-                const schema = this.schemaDb[property.items.$ref];
+                const schema = this.schemaDb[getRef(property.items)];
 
                 jsonOutput[field] = [];
 
@@ -368,7 +367,7 @@ class SchemaParser {
             }
 
             case 'object': {
-                const schema = this.schemaDb[property.$ref];
+                const schema = this.schemaDb[getRef(property)];
                 const response = await promiseExec(SchemaParser.create(data[field], this.schemaDb, schema).write());
                 if (response[0]) {
                     return reject(response[0]);
@@ -386,7 +385,7 @@ class SchemaParser {
     }
 
     getFieldType(property) {
-        return property.type || this.schemaDb[property.$ref].type || 'unknown';
+        return getType(property) || getType(this.schemaDb[getRef(property)]) || 'unknown';
     }
 }
 
