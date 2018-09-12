@@ -170,15 +170,16 @@ class DataFieldReader {
 }
 
 class SchemaParser {
-    static create(manifest, schemaDb, schema) {
-        return new SchemaParser(manifest, schemaDb, schema);
+    static create(manifest, schemaDb, schema, depth = -1) {
+        return new SchemaParser(manifest, schemaDb, schema, depth);
     }
 
-    constructor(manifest, schemaDb, schema) {
+    constructor(manifest, schemaDb, schema, depth) {
         this.ref = '';
         this.manifest = manifest;
         this.schemaDb = schemaDb;
         this.schema = schema;
+        this.depth = depth + 1;
     }
 
     async readManifest() {
@@ -330,6 +331,10 @@ class SchemaParser {
             };
         }
 
+        if (this.depth === 0) {
+            // Add final data stripper/validator here
+        }
+
         return jsonOutput;
     }
 
@@ -352,8 +357,10 @@ class SchemaParser {
                 jsonOutput[field] = [];
 
                 const observables = [];
-                data[field].forEach(filePath =>
-                    observables.push(from(SchemaParser.create(filePath, this.schemaDb, schema).write())));
+                data[field].forEach((filePath) => {
+                    const promise = SchemaParser.create(filePath, this.schemaDb, schema, this.depth).write();
+                    observables.push(from(promise));
+                });
 
                 forkJoin(observables)
                     .subscribe(
@@ -368,7 +375,8 @@ class SchemaParser {
 
             case 'object': {
                 const schema = this.schemaDb[getRef(property)];
-                const response = await promiseExec(SchemaParser.create(data[field], this.schemaDb, schema).write());
+                const promise = SchemaParser.create(data[field], this.schemaDb, schema, this.depth).write();
+                const response = await promiseExec(promise);
                 if (response[0]) {
                     return reject(response[0]);
                 }

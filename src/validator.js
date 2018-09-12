@@ -19,7 +19,7 @@ class JsonValidator {
     }
 
     validate(data, schema) {
-        const result = this.validator.validate(data, schema);
+        const result = this.validator.validate(data, schema, {nestedErrors: true});
         const hasErrors = result.errors.length;
         return (hasErrors) ? result.errors : null;
     }
