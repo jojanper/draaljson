@@ -45,4 +45,14 @@ describe('JsonBundler', () => {
             done();
         });
     });
+
+    it('build fails', (done) => {
+        const envs = ['error'];
+        const obj = JsonBundler.create(envs, MANIFEST_PATH);
+
+        obj.write().catch((err) => {
+            expect(err.message).toBeDefined();
+            done();
+        });
+    });
 });

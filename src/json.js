@@ -11,9 +11,9 @@ const INPUT_SCHEMA = {
     id: '/input-schema',
     type: 'object',
     properties: {
-        output: {type: 'string'},
-        target: {type: 'string'},
-        schemaDb: {type: 'string'}
+        output: { type: 'string' },
+        target: { type: 'string' },
+        schemaDb: { type: 'string' }
     },
     required: ['output', 'target', 'schemaDb']
 };
@@ -26,9 +26,7 @@ const INPUT_SCHEMA = {
 class JsonWriter {
     static create(manifest, env) {
         const instance = new JsonWriter(manifest, env);
-        return instance.write().catch((err) => {
-            log.logError(err.message, {trace: true});
-        });
+        return instance.write();
     }
 
     constructor(manifest, env) {

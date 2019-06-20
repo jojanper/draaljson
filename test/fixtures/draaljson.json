@@ -9,6 +9,11 @@
             "output": "build/release.json",
             "target": "test/fixtures/specs/manifest/verification.json",
             "schemaDb": "test/fixtures/specs/schema/database"
+        },
+        "error": {
+            "output": "build/error.json",
+            "target": "test/fixtures/specs/manifest/verification-3.json",
+            "schemaDb": "test/fixtures/specs/schema/database"
         }
     }
 }

@@ -49,7 +49,11 @@ class JsonBundler {
          */
         const promises = [];
         this.envs.forEach(env => promises.push(JsonWriter.create(manifest.bundles[env], env)));
+
         const response = await promiseExec(Promise.all(promises));
+        if (response[0]) {
+            throw response[0];
+        }
 
         // Include only environments that succeeded as output
         return response[1].filter(env => env);

@@ -32,11 +32,14 @@ const colorText = {
 };
 
 const logError = (msg, options) => {
-    const method = options && options.trace ? 'trace' : 'log';
+    let method = options && options.trace ? 'trace' : 'log';
     if (isObject(msg)) {
         console[method](msg);
+        method = 'log';
     }
-    console[method](`${colorText.FgRed}${logSymbols.error}${colorText.FgRed} ${msg} ${colorText.Reset}`);
+
+    const message = msg.message || msg;
+    console[method](`${colorText.FgRed}${logSymbols.error}${colorText.FgRed} ${message} ${colorText.Reset}`);
 };
 
 const logWarning = (msg) => {

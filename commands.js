@@ -1,6 +1,7 @@
 const program = require('commander');
 
 const { JsonBundler } = require('.');
+const { log } = require('./src/utils');
 
 
 program
@@ -21,7 +22,8 @@ program
             .then((response) => {
                 console.log('\nJSON bundle created for following environments:');
                 response.forEach(item => console.log(item));
-            });
+            })
+            .catch(err => log.logError(err, { trace: true }));
     });
 
 

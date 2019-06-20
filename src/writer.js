@@ -152,7 +152,7 @@ class DataFieldReader {
             if (i === 0) {
                 json = data;
             } else {
-                json = {...json, ...data};
+                json = { ...json, ...data };
             }
 
             i++;
@@ -162,7 +162,7 @@ class DataFieldReader {
 
         // And finally customized data on top
         if (this.hasData$) {
-            json = {...json, ...this.data[this.field].data$};
+            json = { ...json, ...this.data[this.field].data$ };
         }
 
         return json;
@@ -351,43 +351,43 @@ class SchemaParser {
             const fieldType = this.getFieldType(property);
 
             switch (fieldType) {
-            case 'array': {
-                const schema = this.schemaDb[getRef(property.items)];
+                case 'array': {
+                    const schema = this.schemaDb[getRef(property.items)];
 
-                jsonOutput[field] = [];
+                    jsonOutput[field] = [];
 
-                const observables = [];
-                data[field].forEach((filePath) => {
-                    const promise = SchemaParser.create(filePath, this.schemaDb, schema, this.depth).write();
-                    observables.push(from(promise));
-                });
+                    const observables = [];
+                    data[field].forEach((filePath) => {
+                        const promise = SchemaParser.create(filePath, this.schemaDb, schema, this.depth).write();
+                        observables.push(from(promise));
+                    });
 
-                forkJoin(observables)
-                    .subscribe(
-                        (results) => {
-                            results.forEach(result => jsonOutput[field].push(result));
-                            resolve(jsonOutput);
-                        },
-                        err => reject(err)
-                    );
-                break;
-            }
-
-            case 'object': {
-                const schema = this.schemaDb[getRef(property)];
-                const promise = SchemaParser.create(data[field], this.schemaDb, schema, this.depth).write();
-                const response = await promiseExec(promise);
-                if (response[0]) {
-                    return reject(response[0]);
+                    forkJoin(observables)
+                        .subscribe(
+                            (results) => {
+                                results.forEach(result => jsonOutput[field].push(result));
+                                resolve(jsonOutput);
+                            },
+                            err => reject(err)
+                        );
+                    break;
                 }
 
-                [, jsonOutput[field]] = response;
-                resolve(jsonOutput);
-                break;
-            }
+                case 'object': {
+                    const schema = this.schemaDb[getRef(property)];
+                    const promise = SchemaParser.create(data[field], this.schemaDb, schema, this.depth).write();
+                    const response = await promiseExec(promise);
+                    if (response[0]) {
+                        return reject(response[0]);
+                    }
 
-            default:
-                return reject(new Error(`Unsupported parser type (${fieldType}) present in ${this.ref}:datafile$:${field}`));
+                    [, jsonOutput[field]] = response;
+                    resolve(jsonOutput);
+                    break;
+                }
+
+                default:
+                    return reject(new Error(`Unsupported parser type (${fieldType}) present in ${this.ref}:datafile$:${field}`));
             }
         });
     }

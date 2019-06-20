@@ -8,12 +8,8 @@ describe('JsonWriter', () => {
         spyOn(log, 'logWarning');
     });
 
-    function runTest(manifest, env, done, callCount = 1) {
-        JsonWriter.create(manifest, env).then((response) => {
-            expect(response).toBeUndefined();
-            expect(log.logError).toHaveBeenCalledTimes(callCount);
-            done();
-        });
+    function runTest(manifest, env, done) {
+        JsonWriter.create(manifest, env).catch(done);
     }
 
     it('write fails due to invalid schema DB path', (done) => {
@@ -23,10 +19,8 @@ describe('JsonWriter', () => {
             schemaDb: 'test/fixtures/specs/schema/database2'
         };
 
-        runTest(manifest, 'dev', () => {
-            expect(log.logWarning).toHaveBeenCalledTimes(1);
-            const err = log.logError.calls.all()[0].args[0];
-            expect(err.startsWith('Empty schema DB')).toBeTruthy();
+        runTest(manifest, 'dev', (err) => {
+            expect(err.message.startsWith('Empty schema DB')).toBeTruthy();
             done();
         });
     });
@@ -38,9 +32,8 @@ describe('JsonWriter', () => {
             schemaDb: 'test/fixtures/specs/schema/errorneous'
         };
 
-        runTest(manifest, 'dev', () => {
-            const err = log.logError.calls.all()[0].args[0];
-            expect(err.startsWith('Unable to read schema DB file')).toBeTruthy();
+        runTest(manifest, 'dev', (err) => {
+            expect(err.message.startsWith('Unable to read schema DB file')).toBeTruthy();
             done();
         });
     });
@@ -52,11 +45,12 @@ describe('JsonWriter', () => {
             schemaDb: 'test/fixtures/specs/schema/database'
         };
 
-        runTest(manifest, 'dev', () => {
-            const err = log.logError.calls.all()[0].args[0].message;
-            expect(err.startsWith('requires property "output"')).toBeTruthy();
+        runTest(manifest, 'dev', (err) => {
+            const errMsg = log.logError.calls.all()[0].args[0].message;
+            expect(errMsg.startsWith('requires property "output"')).toBeTruthy();
+            expect(err.message).toEqual('JSON schema validation failed for environment: dev');
             done();
-        }, 2);
+        });
     });
 
     it('write fails due to bundle schema validation errors', (done) => {
@@ -66,11 +60,10 @@ describe('JsonWriter', () => {
             schemaDb: 'test/fixtures/specs/schema/database'
         };
 
-        runTest(manifest, 'dev', () => {
-            const err = log.logError.calls.all()[0].args[0];
+        runTest(manifest, 'dev', (err) => {
             const msg = 'does-not-exist.json: ENOENT: no such file or directory, open \'does-not-exist.json\'';
 
-            expect(err).toEqual(msg);
+            expect(err.message).toEqual(msg);
             done();
         });
     });
